@@ -15,21 +15,21 @@ const header = ref({
 
 const data = ref([
     {
-        name_units: 'Мраморный щебень фр. 2-5 мм, 25кг',
+        name_units: '1111111111111',
         price: 1231,
         quantity: 12,
         name_product: 'Мраморный щебень',
         total: 1231
     },
     {
-        name_units: 'Мраморный щебень фр. 2-5 мм, 25кг',
+        name_units: '22222222222222г',
         price: 1231,
         quantity: 12,
         name_product: 'Мраморный щебень',
         total: 1231
     },
     {
-        name_units: 'Мраморный щебень фр. 2-5 мм, 25кг',
+        name_units: '3333333333333',
         price: 1231,
         quantity: 12,
         name_product: 'Мраморный щебень',
@@ -37,12 +37,13 @@ const data = ref([
     },
 ])
 
+
+const activeDragObject = ref(null)
 let headerItemsRefs = ref([])
 let reactiveStyleForCells = reactive({});
-const activeDragObject = ref(null)
 let tableHeader = ref(null)
 let tableContent = ref(null)
-let startX = null
+let heightRow = ref(45)
 
 const setItemRef = (el) => {
   headerItemsRefs.value.push(el);
@@ -54,6 +55,9 @@ const initStyle = () => {
   });
 };
 
+//для редактирования ширины ячееек
+let startX = null
+let skeletonIsActive = ref(false)
 
 const startDrag = (event) => {
     const selection = window.getSelection();
@@ -80,15 +84,129 @@ const drag = (event) => {
 const stopDrag = (event) => {
   activeDragObject.value = null
   startX = null
-  console.log('test')
 };
+
+//для перетаскивания строк
+const gragRowRef = ref(null)
+const gragRowCurrentIndex = ref(null)
+const fake = ref(null)
+let x = ref(null)
+let y = ref(null)
+
+let shiftX = null
+let shiftY = null
+
+const startDragRow = (event, i) => {
+    gragRowRef.value = event.target.closest('.row')
+    gragRowCurrentIndex.value = i
+
+    const clonedRow = gragRowRef.value.cloneNode(true);
+    fake.value.innerHTML = '';  
+    fake.value.appendChild(clonedRow);
+
+    gragRowRef.value.classList.add('skeleton')
+
+    const box = event.target.getBoundingClientRect()
+
+    const top = box.top + pageYOffset
+    const left = box.left + pageXOffset
+
+    shiftX = event.pageX - left 
+    shiftY = event.pageY - top - i * heightRow.value
+
+    // toggleSkeleton(i + 1, true)
+    skeletonIsActive.value = true;
+    moveAt(event)
+};
+
+const dragRow = (event) => {
+    if (gragRowRef.value) {
+        moveAt(event);
+
+        const tableContentRect = tableContent.value.getBoundingClientRect();
+        const offsetYInsideTableContent = event.clientY - tableContentRect.top;
+
+        const numberForSkeleton = Math.floor(offsetYInsideTableContent / heightRow.value);
+
+        if (gragRowCurrentIndex.value !== numberForSkeleton) {
+            swapArray(data.value, gragRowCurrentIndex.value, numberForSkeleton);
+            gragRowCurrentIndex.value = numberForSkeleton; // Обновляем текущий индекс
+            document.querySelector('.skeleton').classList.remove('skeleton')
+            document.querySelectorAll('.table__content-item')[gragRowCurrentIndex.value].classList.add('skeleton')
+        }
+    }
+};
+
+const stopDragRow = (event) => {
+    if(!gragRowRef.value) return
+    gragRowRef.value.classList.remove('skeleton');
+    gragRowRef.value = null;
+
+    x.value = null;
+    y.value = null;
+    fake.value.innerHTML = '';  
+    skeletonIsActive.value = false;
+
+    const tableContentRect = tableContent.value.getBoundingClientRect();
+    const offsetYInsideTableContent = event.clientY - tableContentRect.top;
+    const numberForSkeleton = parseInt(offsetYInsideTableContent / heightRow.value);
+
+    document.querySelector('.skeleton').classList.remove('skeleton')
+
+};
+
+
+const swapArray = (arr, oldPlace, newPlace) => {
+    if (Math.min(oldPlace, newPlace) < 0 || Math.max(oldPlace, newPlace) >= arr.length) {
+        return null;
+    }
+    
+    const item = arr.splice(oldPlace, 1)[0]; // Убрал лишний [0], чтобы получить элемент напрямую
+    arr.splice(newPlace, 0, item);
+    
+    return arr;
+};
+
+function moveAt(e) {
+    x.value = e.pageX - shiftX
+    y.value = e.pageY - shiftY
+}
 
 const lineHeight = (() => {
     return tableContent.value.getBoundingClientRect().height + tableHeader.value.getBoundingClientRect().height - 1
 })
+
+// const tableWidth = () => {
+//     if(reactiveStyleForCells.value) {
+//         for (const [key, value] of Object.entries(reactiveStyleForCells.value)) {
+//             console.log(`${key}: ${value}`);
+//         }
+
+//         return reactiveStyleForCells.value[0]
+//     }
+//     return null
+// }
+
+const tableWidth = computed(() => {
+    let width = 0
+    console.log(reactiveStyleForCells)
+    if(reactiveStyleForCells.value) {
+        for (const [key, value] of Object.entries(reactiveStyleForCells.value)) {
+            console.log(`${key}: ${value}`);
+            width += value
+        }
+        return width 
+
+    } 
+    return null
+})
+
+   
 onMounted(() => {
     initStyle()
 })
+
+
 </script>
 
 <template>
@@ -112,37 +230,60 @@ onMounted(() => {
                 </div>
                 <div class="line"
                     v-if="tableContent"
+                    :style="{ height: activeDragObject === item[0] ? lineHeight() + 'px' : '100%'}"
                     @mousedown="startDrag($event)"
                     @mousemove="drag($event)"
                     @mouseup="stopDrag($event)"
-                    :style="{ height: activeDragObject === item[0] ? lineHeight() + 'px' : '100%'}"
                 ></div>
             </div>
         </div>
         <div class="table__content"
             ref="tableContent"
         >
-            <div class="table__content-item row" v-for="(row, i) of data" :key="i">
+            <div class="fake"
+                ref="fake"
+                :class="{active: skeletonIsActive}"
+                :style="{left: x + 'px', top: y + 'px', height: heightRow + 'px', width: tableWidth}"
+                @mousemove="dragRow($event)"
+                @mouseup="stopDragRow($event)"
+            >
+
+            </div>
+            <div class="table__content-item row"
+                v-for="(row, i) of data" :key="i"
+                :style="{height: heightRow + 'px'}"
+            >
+            <b>
+                {{ i }}
+            </b>
                 <div class="cell"
                     v-for="(item, index) of Object.entries(header)"
                     :key="index"
-                    :class="[
-                        {
-                            _menu: item[0] === 'menu',
-                            _points: item[0] === 'points',
-                        }
-                    ]"
                     :style="[
                         {
                             minWidth: reactiveStyleForCells[item[0]] + 'px',
                             width: reactiveStyleForCells[item[0]] + 'px',
                         }
                     ]"
+                    :class="[
+                        {
+                            _menu: item[0] === 'menu',
+                            _points: item[0] === 'points',
+                        }
+                    ]"
                 >
-                    <icon-menu v-if="item[0] === 'menu'"/>
-                    <span v-if="item[0] === 'menu'">
-                        {{ i }}
-                    </span>
+                    <div
+                        v-if="item[0] === 'menu'"
+                        @mousedown="startDragRow($event, i)"
+                        @mousemove="dragRow($event)"
+                        @mouseup="stopDragRow($event)"
+                        class="menu-btn"
+                    >
+                        <icon-menu />
+                        <span>
+                            {{ i }}
+                        </span>
+                    </div>
                     <div v-if="item[0] === 'points'">
                         <span v-for="point of [1,2,3]" :key="point" class="point">
                         </span>
@@ -188,6 +329,7 @@ onMounted(() => {
     }
 
     &__content {
+        position: relative;
     }
 
     &__content-item {
@@ -225,6 +367,13 @@ onMounted(() => {
     align-items: center;
     gap: 5px;
     &._menu {
+        & .menu-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            position: relative;
+            cursor: grab;
+        }
         & svg {
             min-width: 12px;
         }
@@ -301,6 +450,37 @@ input {
         transform: translate(-50%, 0);
         cursor: e-resize;
         z-index: 5;
+    }
+}
+
+.skeleton {
+    width: 100%;
+    border-radius: 5px;
+    border: 2px dashed #a6b7d4;
+    background-color: #fbfcfd;
+    & .cell {
+        display: none;
+    }
+}
+
+.fake {
+    position: absolute;
+    display: flex;
+    pointer-events: none;
+    &.active {
+        z-index: 10;
+        pointer-events: all;
+        &::after {
+            content: "";
+            width: calc(100% + 200px);
+            height: 241px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+            cursor: grab;
+        }
     }
 }
 
