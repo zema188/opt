@@ -1,6 +1,7 @@
 
 <script setup>
 import IconMenu from '@/components/icons/IconMenu.vue'
+import { ref } from 'vue'
 const props = defineProps({
     row: {
         type: Object,
@@ -22,6 +23,9 @@ const props = defineProps({
         type: Object,
     }
 })
+
+
+let pointsFormIsActive = ref(false)
 </script>
 
 <template>
@@ -42,7 +46,6 @@ const props = defineProps({
                     _menu: item[0] === 'menu',
                     _points: item[0] === 'points',
                 },
-                {customHidden: !(props.namesCols && props.namesCols[item[0]] && props.namesCols[item[0]].show)}
             ]"
         >
             <div
@@ -58,8 +61,18 @@ const props = defineProps({
                 </span>
             </div>
             <div v-if="item[0] === 'points'">
-                <span v-for="point of [1,2,3]" :key="point" class="point">
-                </span>
+                <div class="points-w"
+                    @click="pointsFormIsActive = !pointsFormIsActive"
+                >
+                    <span v-for="point of [1,2,3]" :key="point" class="point">
+                    </span>
+                </div>
+                <button class="points__dropdown"
+                    v-if="pointsFormIsActive"
+                    @click="$emit('deleteRow', props.number)"
+                >
+                    Удалить
+                </button>
             </div>
             <input
                 v-if="item[0] === 'name_units'"
@@ -86,5 +99,36 @@ const props = defineProps({
 </template>
 
 <style lang="scss" scoped>
+._points {
+    position: relative;
+    overflow: visible;
+}
 
+.points-w {
+    width: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.points__dropdown {
+    background: #fff;
+    position: absolute;
+    padding: 7px 19.4px 7px 5px;
+    border-radius: 5px;
+    box-shadow: 0 0 3px 0 #000, inset 0 1px 2px 0 rgba(255, 255, 255, 0.5);
+    background-color: #fff;
+    left: 0;
+    top: calc(100% - 13px);
+    font-size: 14px;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #ae0a0a;
+}
 </style>

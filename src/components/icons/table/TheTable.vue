@@ -259,6 +259,21 @@ const stopDragCol = (event) => {
     dragColCurrentIndex.value = null
 };
 
+const addNewRow = () => {
+    data.value.push(
+        {
+            name_units: '',
+            price: '',
+            quantity: '',
+            name_product: '',
+            total: ''
+        }
+    )
+}
+
+const deleteRow = numberRow => {
+    data.value.splice(numberRow, 1)
+}
 
 // const tableWidth = () => {
 //     if(reactiveStyleForCells.value) {
@@ -387,7 +402,7 @@ onMounted(() => {
                         :class="[
                             {customHidden: (namesCols[row] && namesCols[row].show)}
                         ]"
-                        :key="i"
+                        :key="row"
                         :row="row"
                         :number="i"
                         :heightRow="heightRow"
@@ -395,6 +410,7 @@ onMounted(() => {
                         :reactiveStyleForCells="reactiveStyleForCells"
                         :namesCols="namesCols"
                         @startDragRow="(event, row, number) => startDragRow(event, row, number)"
+                        @deleteRow="(row) => deleteRow(row)"
                     />
                 </div>
             </div>
@@ -492,13 +508,6 @@ onMounted(() => {
 }
 .row {
     & ._points {
-        & div {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            justify-content: center;
-            align-items: flex-start;
-        }
         & span {
             display: block;
             width: 3px;
