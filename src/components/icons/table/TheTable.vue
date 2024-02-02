@@ -1,41 +1,45 @@
 
 <script setup>
 import { onMounted, onUpdated, ref, reactive, computed } from "vue";
-import IconMenu from '@/components/icons/IconMenu.vue'
+import RowItem from "./RowItem.vue";
+import IconSettings from '@/components/icons/IconSettings.vue'
 
-const header = ref({
-    menu: '',
-    points: '',
-    name_units: 'Наименование еденицы',
-    price: 'Цена',
-    quantity: 'Кол-во',
-    name_product: 'Наименование товара',
-    total: 'Итого',
-})
+
+const header = ref([
+    ['menu',''],
+    ['points', ''],
+    ['name_units', 'Наименование еденицы'],
+    ['price', 'Цена'],
+    ['quantity', 'Кол-во'],
+    ['name_product', 'Наименование товара'],
+    ['total', 'Итого'],
+])
 
 const data = ref([
     {
         name_units: '1111111111111',
-        price: 1231,
+        price: 'цена',
         quantity: 12,
         name_product: 'Мраморный щебень',
         total: 1231
     },
     {
         name_units: '22222222222222г',
-        price: 1231,
+        price: 'цена',
         quantity: 12,
         name_product: 'Мраморный щебень',
         total: 1231
     },
     {
         name_units: '3333333333333',
-        price: 1231,
+        price: 'цена',
         quantity: 12,
         name_product: 'Мраморный щебень',
         total: 1231
     },
 ])
+
+let hiddenFormIsActive = ref(false)
 
 
 const activeDragObject = ref(null)
@@ -43,7 +47,7 @@ let headerItemsRefs = ref([])
 let reactiveStyleForCells = reactive({});
 let tableHeader = ref(null)
 let tableContent = ref(null)
-let heightRow = ref(45)
+let heightRow = ref(50)
 
 const setItemRef = (el) => {
   headerItemsRefs.value.push(el);
@@ -55,13 +59,26 @@ const initStyle = () => {
   });
 };
 
+const namesCols = ref({})
+
+const initNamesCol = () => {
+    header.value.forEach(el => {
+        let name = el[1]
+        if(el[0] === 'menu') name = 'Меню'
+        if(el[0] === 'points') name = 'Точки'
+        namesCols.value[el[0]] = {
+            name: name,
+            show: true
+        }
+    });
+}
+
 //для редактирования ширины ячееек
 let startX = null
 let skeletonIsActive = ref(false)
 
 const startDrag = (event) => {
     const selection = window.getSelection();
-    console.log(selection)
     if (selection.rangeCount > 0) {
         selection.removeAllRanges();
     }
@@ -87,24 +104,24 @@ const stopDrag = (event) => {
 };
 
 //для перетаскивания строк
-const gragRowRef = ref(null)
-const gragRowCurrentIndex = ref(null)
+const dragRowRef = ref(null)
+const dragRowCurrentIndex = ref(null)
 const fake = ref(null)
+const fakeData = ref({})
+
 let x = ref(null)
 let y = ref(null)
 
 let shiftX = null
 let shiftY = null
 
-const startDragRow = (event, i) => {
-    gragRowRef.value = event.target.closest('.row')
-    gragRowCurrentIndex.value = i
+const startDragRow = (event, row, i) => {
+    dragRowRef.value = event.target.closest('.row')
+    dragRowCurrentIndex.value = i
 
-    const clonedRow = gragRowRef.value.cloneNode(true);
-    fake.value.innerHTML = '';  
-    fake.value.appendChild(clonedRow);
+    fakeData.value = {...row}
 
-    gragRowRef.value.classList.add('skeleton')
+    dragRowRef.value.classList.add('skeleton')
 
     const box = event.target.getBoundingClientRect()
 
@@ -114,13 +131,12 @@ const startDragRow = (event, i) => {
     shiftX = event.pageX - left 
     shiftY = event.pageY - top - i * heightRow.value
 
-    // toggleSkeleton(i + 1, true)
     skeletonIsActive.value = true;
     moveAt(event)
 };
 
 const dragRow = (event) => {
-    if (gragRowRef.value) {
+    if (dragRowRef.value) {
         moveAt(event);
 
         const tableContentRect = tableContent.value.getBoundingClientRect();
@@ -128,40 +144,45 @@ const dragRow = (event) => {
 
         const numberForSkeleton = Math.floor(offsetYInsideTableContent / heightRow.value);
 
-        if (gragRowCurrentIndex.value !== numberForSkeleton) {
-            swapArray(data.value, gragRowCurrentIndex.value, numberForSkeleton);
-            gragRowCurrentIndex.value = numberForSkeleton; // Обновляем текущий индекс
-            document.querySelector('.skeleton').classList.remove('skeleton')
-            document.querySelectorAll('.table__content-item')[gragRowCurrentIndex.value].classList.add('skeleton')
+        if(numberForSkeleton < 0) return
+        if (dragRowCurrentIndex.value !== numberForSkeleton) {
+            swapArray(data.value, dragRowCurrentIndex.value, numberForSkeleton);
+            dragRowCurrentIndex.value = numberForSkeleton; // Обновляем текущий индекс
+            const skeleton = document.querySelector('.skeleton')
+            if(skeleton) {
+                skeleton.classList.remove('skeleton')
+            }
+            const row = document.querySelectorAll('.table__content-item')[dragRowCurrentIndex.value]
+            if(row) {
+                row.classList.add('skeleton')
+            }
         }
     }
 };
 
 const stopDragRow = (event) => {
-    if(!gragRowRef.value) return
-    gragRowRef.value.classList.remove('skeleton');
-    gragRowRef.value = null;
+    if(!dragRowRef.value) return
+    dragRowRef.value.classList.remove('skeleton');
+    dragRowRef.value = null;
 
     x.value = null;
     y.value = null;
-    fake.value.innerHTML = '';  
+
     skeletonIsActive.value = false;
 
-    const tableContentRect = tableContent.value.getBoundingClientRect();
-    const offsetYInsideTableContent = event.clientY - tableContentRect.top;
-    const numberForSkeleton = parseInt(offsetYInsideTableContent / heightRow.value);
-
-    document.querySelector('.skeleton').classList.remove('skeleton')
+    const skeleton = document.querySelector('.skeleton')
+    if(skeleton) {
+        skeleton.classList.remove('skeleton')
+    }
 
 };
-
 
 const swapArray = (arr, oldPlace, newPlace) => {
     if (Math.min(oldPlace, newPlace) < 0 || Math.max(oldPlace, newPlace) >= arr.length) {
         return null;
     }
     
-    const item = arr.splice(oldPlace, 1)[0]; // Убрал лишний [0], чтобы получить элемент напрямую
+    const item = arr.splice(oldPlace, 1)[0]
     arr.splice(newPlace, 0, item);
     
     return arr;
@@ -175,6 +196,69 @@ function moveAt(e) {
 const lineHeight = (() => {
     return tableContent.value.getBoundingClientRect().height + tableHeader.value.getBoundingClientRect().height - 1
 })
+
+
+//для перетаскивания колонок
+const dragColName = ref(null)
+const dragColCurrentIndex = ref(null)
+
+const startDragCol = (event, number, name) => {
+    console.log('name', name)
+    if(activeDragObject.value) return
+
+    const selection = window.getSelection()
+
+    if (selection.rangeCount > 0) {
+        selection.removeAllRanges()
+    }
+
+    dragColName.value = name
+    const tableHeaderRect = tableHeader.value.getBoundingClientRect();
+
+    const offsetXInsideTableHeader = event.clientX - tableHeaderRect.left;
+
+
+    dragColCurrentIndex.value = number
+
+};
+let lastSwapColName = null
+const dragCol = (event) => {
+    if (!dragColName.value || activeDragObject.value) return;
+    const tableHeaderRect = tableHeader.value.getBoundingClientRect();
+    const offsetXInsideTableHeader = event.clientX - tableHeaderRect.left;
+
+    let line = 0;
+
+    for (let index = 0; index < header.value.length; index++) {
+        const element =  header.value[index];
+        
+        line += reactiveStyleForCells[element[0]];
+
+        if (offsetXInsideTableHeader <= line) {
+            if (element[0] !== dragColName.value) {
+                const currentIndex = dragColCurrentIndex.value;
+                const tempArray1 = header.value[index].slice();
+                const tempArray2 = header.value[currentIndex].slice();
+
+                [header.value[index], header.value[currentIndex]] = [tempArray2, tempArray1];
+                
+
+                // lastSwapColName = element[0]
+
+
+                dragColCurrentIndex.value = index;
+            }
+            return false;
+        }
+    }
+};
+
+
+const stopDragCol = (event) => {
+    dragColName.value = null
+    dragColCurrentIndex.value = null
+};
+
 
 // const tableWidth = () => {
 //     if(reactiveStyleForCells.value) {
@@ -204,117 +288,122 @@ const tableWidth = computed(() => {
    
 onMounted(() => {
     initStyle()
+    initNamesCol()
 })
 
 
 </script>
 
 <template>
-    <div class="table" 
-    >
-        <div class="table__header"
-            ref="tableHeader"
-        >
-            <div class="table__header-item-w"
-                v-for="(item, index) of Object.entries(header)"
-                :key="index"
-                :ref="setItemRef"
-                :name="item[0]"
-                :class="{active: activeDragObject === item[0]}"
+    <div class="container">
+        <div class="block-add block">
+            <button class="btn btn_blue"
+                @click="addNewRow()"
             >
-                <div class="table__header-item cell"
-                    :class="item[0]"
-                    :style="{ width: reactiveStyleForCells[item[0]] + 'px' + '!important'}"
+                Добавить строку
+            </button>
+        </div>
+    </div>
+    <div class="container">
+        <div class="block-table block">
+        <div class="table__top">
+            <div class="">
+                Сохранить изменения
+            </div>
+            <div class="for-dropdown">
+                <button
+                    @click="hiddenFormIsActive = !hiddenFormIsActive"
                 >
-                    {{ item[1] }}
+                    <icon-settings/>
+                </button>
+                <div class="dropwdown"
+                    v-if="hiddenFormIsActive"
+                >
+                    <label class="dropwdown__item"
+                        v-for="(value, key) in namesCols" :key="key"
+                    >
+                        <input type="checkbox"
+                            v-model="value.show"
+                        />
+                        {{ value.name }}
+                    </label>
                 </div>
-                <div class="line"
-                    v-if="tableContent"
-                    :style="{ height: activeDragObject === item[0] ? lineHeight() + 'px' : '100%'}"
-                    @mousedown="startDrag($event)"
-                    @mousemove="drag($event)"
-                    @mouseup="stopDrag($event)"
-                ></div>
             </div>
         </div>
-        <div class="table__content"
-            ref="tableContent"
-        >
-            <div class="fake"
-                ref="fake"
-                :class="{active: skeletonIsActive}"
-                :style="{left: x + 'px', top: y + 'px', height: heightRow + 'px', width: tableWidth}"
-                @mousemove="dragRow($event)"
-                @mouseup="stopDragRow($event)"
+            <div class="table" 
             >
-
-            </div>
-            <div class="table__content-item row"
-                v-for="(row, i) of data" :key="i"
-                :style="{height: heightRow + 'px'}"
-            >
-            <b>
-                {{ i }}
-            </b>
-                <div class="cell"
-                    v-for="(item, index) of Object.entries(header)"
-                    :key="index"
-                    :style="[
-                        {
-                            minWidth: reactiveStyleForCells[item[0]] + 'px',
-                            width: reactiveStyleForCells[item[0]] + 'px',
-                        }
-                    ]"
-                    :class="[
-                        {
-                            _menu: item[0] === 'menu',
-                            _points: item[0] === 'points',
-                        }
-                    ]"
+                <div class="table__header"
+                    ref="tableHeader"
                 >
-                    <div
-                        v-if="item[0] === 'menu'"
-                        @mousedown="startDragRow($event, i)"
+                    <div class="table__header-item-w"
+                        v-for="(item, index) of header"
+                        :key="index"
+                        :ref="setItemRef"
+                        :name="item[0]"
+                        :class="[
+                            {active: activeDragObject === item[0]},
+                            {activeCol: dragColName === item[0]},
+                            {customHidden: !(namesCols[item[0]] && namesCols[item[0]].show)}
+                        ]"
+                        @mousedown="startDragCol($event, index, item[0])"
+                        @mousemove="dragCol($event)"
+                        @mouseup="stopDragCol($event)"
+                    >
+                        <div class="table__header-item cell"
+                            :class="item[0]"
+                            :style="{ width: reactiveStyleForCells[item[0]] + 'px' + '!important'}"
+                        >
+                            {{ item[1] }}
+                        </div>
+                        <div class="line"
+                            v-if="tableContent"
+                            :style="{ height: activeDragObject === item[0] ? lineHeight() + 'px' : '100%'}"
+                            @mousedown="startDrag($event)"
+                            @mousemove="drag($event)"
+                            @mouseup="stopDrag($event)"
+                        ></div>
+                    </div>
+                </div>
+                <div class="table__content"
+                    ref="tableContent"
+                >
+                    <row-item
+                        class="fake row"
+                        :class="{active: skeletonIsActive}"
+                        :style="{left: x + 'px', top: y + 'px', height: heightRow + 'px', width: tableWidth}"
+                        ref="fake"
+                        :row="fakeData"
+                        :number="dragRowCurrentIndex"
+                        :heightRow="heightRow"
+                        :header="header"
+                        :reactiveStyleForCells="reactiveStyleForCells"
                         @mousemove="dragRow($event)"
                         @mouseup="stopDragRow($event)"
-                        class="menu-btn"
-                    >
-                        <icon-menu />
-                        <span>
-                            {{ i }}
-                        </span>
-                    </div>
-                    <div v-if="item[0] === 'points'">
-                        <span v-for="point of [1,2,3]" :key="point" class="point">
-                        </span>
-                    </div>
-                    <input
-                        v-if="item[0] === 'name_units'"
-                        v-model="row.name_units"
+                        @mouseout="stopDragRow($event)"
                     />
-                    <input
-                        v-if="item[0] === 'price'"
-                        v-model="row.price"
-                    />
-                    <input
-                        v-if="item[0] === 'quantity'"
-                        v-model="row.quantity"
-                    />
-                    <input
-                        v-if="item[0] === 'name_product'"
-                        v-model="row.name_product"
-                    />
-                    <input
-                        v-if="item[0] === 'total'"
-                        v-model="row.total"
+                    <row-item
+                        class="table__content-item row"
+                        v-for="(row, i) of data"
+                        :class="[
+                            {customHidden: (namesCols[row] && namesCols[row].show)}
+                        ]"
+                        :key="i"
+                        :row="row"
+                        :number="i"
+                        :heightRow="heightRow"
+                        :header="header"
+                        :reactiveStyleForCells="reactiveStyleForCells"
+                        :namesCols="namesCols"
+                        @startDragRow="(event, row, number) => startDragRow(event, row, number)"
                     />
                 </div>
             </div>
         </div>
     </div>
+
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .table {
     overflow: auto;
     &__header {
@@ -326,6 +415,9 @@ onMounted(() => {
         font-weight: 600;
         color: #000;
         padding: 10px 10px 10px 12px;
+        &::selection {
+            background-color: transparent;
+        }
     }
 
     &__content {
@@ -338,11 +430,13 @@ onMounted(() => {
 }
 
 .table__header-item-w {
-    position: relative;
     border-top: 1px solid var(--pale-grey);
     border-bottom: 1px solid var(--pale-grey);
-    border-right: 1px solid var(--pale-grey);
+    position: relative;
+    cursor: all-scroll;
+
     &:not(:last-child) {
+        border-right: 1px solid var(--pale-grey);
     }
     & .table__header-item {
         
@@ -355,6 +449,20 @@ onMounted(() => {
                 width: 100%;
                 height: 100%;
             }
+        }
+    }
+    &.activeCol {
+        &::after {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, 0);
+            cursor: all-scroll;
+            z-index: 5;
+            background: red;
+            opacity: 0.5;
         }
     }
 }
@@ -428,7 +536,7 @@ input {
     width: 193px;
 }
 .total {
-    width: 130px;
+    width: 120px;
 }
 
 .line {
@@ -464,16 +572,22 @@ input {
 }
 
 .fake {
-    position: absolute;
+    position: fixed;
     display: flex;
     pointer-events: none;
+    opacity: 0;
+    z-index: -5;
     &.active {
         z-index: 10;
         pointer-events: all;
+        opacity: 1;
+        z-index: 10;
+        position: absolute;
         &::after {
             content: "";
-            width: calc(100% + 200px);
+            width: 100%;
             height: 241px;
+            height: 100%;
             position: absolute;
             top: 50%;
             left: 50%;
@@ -484,4 +598,39 @@ input {
     }
 }
 
+.dropwdown {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    position: absolute;
+    background: #fff;
+    border-radius: 10px;
+    z-index: 5;
+    right: 0;
+    top: 20px;
+    padding: 10px;
+    border: 1px solid #969669;
+}
+
+.dropwdown__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: space-between;
+    white-space: nowrap;
+    & input {
+        width: auto;
+    }
+}
+
+.customHidden {
+    opacity: 0;
+    position: absolute;
+    z-index: -100;
+    pointer-events: none;
+}
+
+.for-dropdown {
+    position: relative;
+}
 </style>

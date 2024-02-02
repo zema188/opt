@@ -27,31 +27,11 @@ import TheTable from '@/components/icons/table/TheTable.vue'
             </button>
           </div>
         </header>
-        <div class="container">
-          <div class="block-add block">
-            <button class="btn btn_blue">
-              
-              Добавить строку
-            </button>
-          </div>
-        </div>
-        <div class="container">
-          <div class="block-table block">
-            <div class="table__header">
-              <div class="">
-                Сохранить изменения
-              </div>
-              <button>
-                <icon-settings/>
-              </button>
-            </div>
-            <the-table/>
-          </div>
-        </div>
+        <the-table/>
     </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
 .header {
   margin-bottom: 25px;
 		&__title {
@@ -99,7 +79,7 @@ import TheTable from '@/components/icons/table/TheTable.vue'
 
 .table {
 
-  &__header {
+  &__top {
     display: flex;
     justify-content: flex-end;
     align-items: center;
