@@ -1,6 +1,6 @@
 <script setup>
 import IconSettings from '@/components/icons/IconSettings.vue'
-import TheTable from '@/components/icons/table/TheTable.vue'
+import TheTable from '@/components/table/TheTable.vue'
 
 </script>
 
@@ -33,7 +33,7 @@ import TheTable from '@/components/icons/table/TheTable.vue'
 
 <style lang="scss">
 .header {
-  margin-bottom: 25px;
+  margin-bottom: 21px;
 		&__title {
       font-size: 30px;
       font-weight: normal;
@@ -43,6 +43,9 @@ import TheTable from '@/components/icons/table/TheTable.vue'
       letter-spacing: normal;
       color: #000;
       margin-bottom: 21px;
+      @media (max-width: 539px) {
+        
+      }
 		}
 
 		&__action {
@@ -50,6 +53,13 @@ import TheTable from '@/components/icons/table/TheTable.vue'
       justify-content: space-between;
       align-items: center;
       gap: 20px;
+      padding-right: 15px;
+      & button {
+        padding-top: 4px;
+        @media (max-width: 539px) {
+          display: none;
+        }
+      }
 		}
 }
 .nav {
@@ -69,24 +79,31 @@ import TheTable from '@/components/icons/table/TheTable.vue'
 
 
 .block-add {
-  padding: 20px 25px;
+  padding: 18px 25px;
   margin-bottom: 25px;
   & .btn_blue {
-    padding: 10px 15px 10px 10px;
+    padding: 10px 5px 8px 7px;
   }
 }
 
 
 .table {
-
+  @media (max-width: 539px) {
+    border-radius: 10px;
+  }
   &__top {
     display: flex;
     justify-content: flex-end;
     align-items: center;
     gap: 20px;
-    font-size: 12px;
-    color: #a6b7d4;
     padding: 10px 15px;
+    @media (max-width: 539px) {
+      display: none;
+    }
+    & .save {
+      font-size: 12px;
+      color: #a6b7d4;
+    }
     & button {
       display: flex;
     }
@@ -94,6 +111,13 @@ import TheTable from '@/components/icons/table/TheTable.vue'
 }
 .block {
 }
-
+.block-table {
+  @media (max-width: 539px) {
+    background: none;
+    box-shadow: none;
+    border: none;
+    border-radius: 10px;
+  }
+}
 
 </style>

@@ -1,7 +1,7 @@
 
 <script setup>
 import IconMenu from '@/components/icons/IconMenu.vue'
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 const props = defineProps({
     row: {
         type: Object,
@@ -21,11 +21,21 @@ const props = defineProps({
     },
     namesCols: {
         type: Object,
+    },
+    updateData: {
+        type: Boolean,
     }
 })
 
 
 let pointsFormIsActive = ref(false)
+
+watchEffect(() => {
+    if (props.updateData) {
+        pointsFormIsActive.value = false
+    }
+});
+
 </script>
 
 <template>
@@ -48,6 +58,27 @@ let pointsFormIsActive = ref(false)
                 },
             ]"
         >
+            <div class="subtitle" v-if="item[0] === 'menu'">
+                Номер строки
+            </div>
+            <div class="subtitle" v-if="item[0] === 'points'">
+                Действие
+            </div>
+            <div class="subtitle" v-if="item[0] === 'name_units'">
+                Название
+            </div>
+            <div class="subtitle" v-if="item[0] === 'price'">
+                Цена
+            </div>
+            <div class="subtitle" v-if="item[0] === 'quantity'">
+                Количество
+            </div>
+            <div class="subtitle" v-if="item[0] === 'name_product'">
+                Название товара
+            </div> 
+            <div class="subtitle" v-if="item[0] === 'total'">
+                Итого
+            </div>
             <div
                 v-if="item[0] === 'menu'"
                 @mousedown="$emit('startDragRow',$event, props.row, props.number)"
@@ -57,7 +88,7 @@ let pointsFormIsActive = ref(false)
             >
                 <icon-menu />
                 <span>
-                    {{ props.number }}
+                    {{ props.number + 1}}
                 </span>
             </div>
             <div v-if="item[0] === 'points'">
@@ -130,5 +161,28 @@ let pointsFormIsActive = ref(false)
     line-height: normal;
     letter-spacing: normal;
     color: #ae0a0a;
+    z-index: 1;
+    @media (max-width: 539px) {
+        left: 17px;
+        top: calc(100% - 0px);
+        width: 70%;
+        max-width: 355px;
+        text-align: left;
+        padding: 7px 19.4px 7px 10px;
+    }
+}
+
+._menu {
+    padding: 10px 10px 10px 15px;
+}
+
+.subtitle {
+    display: none;
+    font-size: 10px;
+    color: #8f8f8f;
+    flex: 0 0 100%;
+    @media (max-width: 539px) {
+        display: block;
+    }
 }
 </style>

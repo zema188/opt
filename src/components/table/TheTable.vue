@@ -3,7 +3,8 @@
 import { onMounted, onUpdated, ref, reactive, computed } from "vue";
 import RowItem from "./RowItem.vue";
 import IconSettings from '@/components/icons/IconSettings.vue'
-
+import IconPlus from '@/components/icons/IconPlus.vue'
+import TotalInfo from "./TotalInfo.vue";
 
 const header = ref([
     ['menu',''],
@@ -37,6 +38,13 @@ const data = ref([
         name_product: 'Мраморный щебень',
         total: 1231
     },
+    {
+        name_units: '444444444444444444444',
+        price: 'цена',
+        quantity: 12,
+        name_product: 'Мраморный щебень',
+        total: 1231
+    },
 ])
 
 let hiddenFormIsActive = ref(false)
@@ -47,7 +55,7 @@ let headerItemsRefs = ref([])
 let reactiveStyleForCells = reactive({});
 let tableHeader = ref(null)
 let tableContent = ref(null)
-let heightRow = ref(50)
+let heightRow = ref(45)
 
 const setItemRef = (el) => {
   headerItemsRefs.value.push(el);
@@ -116,24 +124,29 @@ let shiftX = null
 let shiftY = null
 
 const startDragRow = (event, row, i) => {
+    updateData.value++
     dragRowRef.value = event.target.closest('.row')
     dragRowCurrentIndex.value = i
 
-    fakeData.value = {...row}
+    fakeData.value = { ...row }
 
     dragRowRef.value.classList.add('skeleton')
+    // console.log(tableWidth + 'px')
+    // dragRowRef.value.style.width = tableWidth + 'px'
 
     const box = event.target.getBoundingClientRect()
 
-    const top = box.top + pageYOffset
-    const left = box.left + pageXOffset
+    const top = box.top + window.pageYOffset  // Adjust for vertical scroll
+    const left = box.left + window.pageXOffset  // Adjust for horizontal scroll
 
-    shiftX = event.pageX - left 
-    shiftY = event.pageY - top - i * heightRow.value
+    shiftX = event.pageX - left
+    shiftY = event.pageY - top - i * heightRow.value + scrollY
 
-    skeletonIsActive.value = true;
+    skeletonIsActive.value = true
+
     moveAt(event)
 };
+
 
 const dragRow = (event) => {
     if (dragRowRef.value) {
@@ -145,6 +158,7 @@ const dragRow = (event) => {
         const numberForSkeleton = Math.floor(offsetYInsideTableContent / heightRow.value);
 
         if(numberForSkeleton < 0) return
+        if(numberForSkeleton > data.value.length - 1) stopDragRow()
         if (dragRowCurrentIndex.value !== numberForSkeleton) {
             swapArray(data.value, dragRowCurrentIndex.value, numberForSkeleton);
             dragRowCurrentIndex.value = numberForSkeleton; // Обновляем текущий индекс
@@ -271,14 +285,17 @@ const addNewRow = () => {
     )
 }
 
+let updateData = ref(0)
+
 const deleteRow = numberRow => {
     data.value.splice(numberRow, 1)
+    updateData.value++
 }
 
 // const tableWidth = () => {
 //     if(reactiveStyleForCells.value) {
 //         for (const [key, value] of Object.entries(reactiveStyleForCells.value)) {
-//             console.log(`${key}: ${value}`);
+//             width += parseFloat(value); // Преобразование строки в число
 //         }
 
 //         return reactiveStyleForCells.value[0]
@@ -288,16 +305,14 @@ const deleteRow = numberRow => {
 
 const tableWidth = computed(() => {
     let width = 0
-    console.log(reactiveStyleForCells)
-    if(reactiveStyleForCells.value) {
-        for (const [key, value] of Object.entries(reactiveStyleForCells.value)) {
-            console.log(`${key}: ${value}`);
+    if (reactiveStyleForCells) {
+        for (const [key, value] of Object.entries(reactiveStyleForCells)) {
             width += value
         }
-        return width 
-
-    } 
-    return null
+        console.log(width)
+        return width;
+    }
+    return null;
 })
 
    
@@ -315,6 +330,7 @@ onMounted(() => {
             <button class="btn btn_blue"
                 @click="addNewRow()"
             >
+                <icon-plus/>
                 Добавить строку
             </button>
         </div>
@@ -322,9 +338,9 @@ onMounted(() => {
     <div class="container">
         <div class="block-table block">
         <div class="table__top">
-            <div class="">
+            <button class="save">
                 Сохранить изменения
-            </div>
+            </button>
             <div class="for-dropdown">
                 <button
                     @click="hiddenFormIsActive = !hiddenFormIsActive"
@@ -366,7 +382,7 @@ onMounted(() => {
                     >
                         <div class="table__header-item cell"
                             :class="item[0]"
-                            :style="{ width: reactiveStyleForCells[item[0]] + 'px' + '!important'}"
+                            :style="{ width: reactiveStyleForCells[item[0]] + 'px'}"
                         >
                             {{ item[1] }}
                         </div>
@@ -382,10 +398,11 @@ onMounted(() => {
                 <div class="table__content"
                     ref="tableContent"
                 >
+                    <div class="table__content-list">
                     <row-item
                         class="fake row"
                         :class="{active: skeletonIsActive}"
-                        :style="{left: x + 'px', top: y + 'px', height: heightRow + 'px', width: tableWidth}"
+                        :style="{left: x + 'px', top: y + 'px', height: heightRow + 'px'}"
                         ref="fake"
                         :row="fakeData"
                         :number="dragRowCurrentIndex"
@@ -402,16 +419,23 @@ onMounted(() => {
                         :class="[
                             {customHidden: (namesCols[row] && namesCols[row].show)}
                         ]"
-                        :key="row"
+                        :style="[
+                            {width: tableWidth + 'px'}
+                        ]"
+                        :key="i"
                         :row="row"
                         :number="i"
                         :heightRow="heightRow"
                         :header="header"
                         :reactiveStyleForCells="reactiveStyleForCells"
                         :namesCols="namesCols"
+                        :updateData="updateData"
                         @startDragRow="(event, row, number) => startDragRow(event, row, number)"
                         @deleteRow="(row) => deleteRow(row)"
                     />
+                    </div>
+
+                    <total-info/>
                 </div>
             </div>
         </div>
@@ -424,6 +448,9 @@ onMounted(() => {
     overflow: auto;
     &__header {
         display: flex;
+        @media (max-width: 539px) {
+            display: none;
+        }
     }
 
     &__header-item {
@@ -438,10 +465,18 @@ onMounted(() => {
 
     &__content {
         position: relative;
+        padding-bottom: 25px;
+        padding-top: 5px;
+        @media (max-width: 539px) {
+            padding-top: 0px;
+        }
     }
 
     &__content-item {
         display: flex;
+        @media (max-width: 539px) {
+            flex-wrap: wrap;
+        }
     }
 }
 
@@ -450,10 +485,7 @@ onMounted(() => {
     border-bottom: 1px solid var(--pale-grey);
     position: relative;
     cursor: all-scroll;
-
-    &:not(:last-child) {
-        border-right: 1px solid var(--pale-grey);
-    }
+    border-right: 1px solid var(--pale-grey);
     & .table__header-item {
         
     }
@@ -484,13 +516,24 @@ onMounted(() => {
 }
 
 .cell {
-    padding: 10px 10px;
+    padding: 10px 10px 10px 15px;
     white-space: nowrap;
     overflow: hidden;
     display: flex;
     align-items: center;
     gap: 5px;
+    @media (max-width: 539px) {
+        width: 100% !important;
+        min-width: auto !important;
+        flex-wrap: wrap;
+        padding: 7.5px 15px 7.5px 15px;
+    }
     &._menu {
+        @media (max-width: 539px) {
+            width: auto !important;
+            min-width: auto !important;
+            flex: 0 0 100%;
+        }
         & .menu-btn {
             display: flex;
             align-items: center;
@@ -507,6 +550,17 @@ onMounted(() => {
     }
 }
 .row {
+    @media (max-width: 539px) {
+        height: auto !important;
+        width: 100% !important;
+        border-radius: 10px;
+        box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.07);
+        border: solid 1px var(--pale-grey);
+        background-color: #fff;
+        &:not(:last-child) {
+            margin-bottom: 5px;
+        }
+    }
     & ._points {
         & span {
             display: block;
@@ -514,12 +568,15 @@ onMounted(() => {
             height: 3px;
             background: #a6b7d4;
             border-radius: 50%;
+            @media (max-width: 539px) {
+                background: #1253a2;
+            }
         }
     }
 }
 
 input {
-    padding: 10px 15px 10px 15px;
+    padding: 7px 15px 7px 15px;
     border-radius: 5px;
     border: solid 1px #ccc;
     background-color: #fff;
@@ -527,30 +584,30 @@ input {
 }
 
 .menu {
-    width: 44px;
+    width: 49px;
 }
 .points {
     width: 24px;
 }
 .name_units {
-    width: 603px;
+    width: 620px;
 }
 .price {
-    width: 196px;
+    width: 216px;
 }
 .quantity {
-    width: 196px;
+    width: 216px;
 }
 .name_product {
-    width: 193px;
+    width: 166px;
 }
 .total {
-    width: 120px;
+    width: 145px;
 }
 
 .line {
     position: absolute;
-    right: 0px;
+    right: -1px;
     top: 0;
     width: 1px;
     height: 100%;
@@ -595,9 +652,8 @@ input {
         &::after {
             content: "";
             width: 100%;
-            height: 241px;
             height: 100%;
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -629,6 +685,7 @@ input {
     white-space: nowrap;
     & input {
         width: auto;
+        height: 100%;
     }
 }
 
@@ -641,5 +698,11 @@ input {
 
 .for-dropdown {
     position: relative;
+}
+
+.block-add {
+    & svg {
+        width: 15px;
+    }
 }
 </style>

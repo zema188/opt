@@ -38,7 +38,7 @@ body {
 }
 input, button, textarea {
   color: #262626;
-  font-family: 'Myriad Pro';
+  font-family: 'Myriad Pro', sans-serif;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
@@ -65,7 +65,7 @@ a, a:visited {
 }
 a {
   color: #262626;
-  font-family: 'Myriad Pro';
+  font-family: 'Myriad Pro', sans-serif;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
@@ -101,7 +101,7 @@ html {
 }
 body {
   color: #262626;
-  font-family: 'Myriad Pro';
+  font-family: 'Myriad Pro', sans-serif;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
