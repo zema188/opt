@@ -73,6 +73,7 @@ let headerItemsRefs = ref([])
 let reactiveStyleForCells = reactive({});
 let tableHeader = ref(null)
 let tableContent = ref(null)
+let tableList = ref(null)
 let heightRow = ref(45)
 
 const setItemRef = (el) => {
@@ -119,6 +120,7 @@ const drag = (event) => {
     const currentWidth = reactiveStyleForCells[dragObject.getAttribute('name')];
     const shift = currentWidth - (startX - event.clientX);
 
+    if(shift < 40) return
     reactiveStyleForCells[dragObject.getAttribute('name')] = shift;
     startX = event.clientX;
   }
@@ -224,7 +226,7 @@ function moveAt(e) {
 }
 
 const lineHeight = (() => {
-    return tableContent.value.getBoundingClientRect().height + tableHeader.value.getBoundingClientRect().height - 1
+    return tableList.value.getBoundingClientRect().height + tableHeader.value.getBoundingClientRect().height - 1
 })
 
 
@@ -238,6 +240,7 @@ let directionLastSwap = null;
 let lastSwapColName = null
 
 const startDragCol = (event, number, headerItem) => {
+    closeDropdownNameUnits()
     if (activeDragObject.value) return;
 
     const selection = window.getSelection();
@@ -257,7 +260,7 @@ const startDragCol = (event, number, headerItem) => {
 
     fakeHeader.value.style.width = reactiveStyleForCells[headerItem[0]] + 'px';
     fakeHeader.value.style.height = tableHeaderRect.height + 'px';
-    fakeHeader.value.style.left = fakeHeaderLeft + 'px';
+    fakeHeader.value.style.left = fakeHeaderLeft + 1 + 'px';
     fakeHeader.value.style.top = tableHeader.value.getBoundingClientRect().y + 'px';
 
     const box = event.target.getBoundingClientRect()
@@ -272,8 +275,13 @@ const startDragCol = (event, number, headerItem) => {
 // let lastMouseXTest = null;
 const dragCol = (event) => {
     if (!dragColName.value || activeDragObject.value) return
-    if(tableHeader.value.getBoundingClientRect().x >= event.clientX || tableHeader.value.getBoundingClientRect().x + tableHeader.value.getBoundingClientRect().width < event.clientX) stopDragCol(event)
     const tableHeaderRect = tableHeader.value.getBoundingClientRect();
+    // const isBeforeTable = event.clientX < tableHeaderRect.x + tableHeader.value.scrollLeft;
+    // const isAfterTable = event.clientX > tableHeaderRect.x + tableHeaderRect.width + tableHeader.value.scrollLeft;
+
+    // if (isBeforeTable || isAfterTable) {
+    //     stopDragCol(event);
+    // }
     const offsetXInsideTableHeader = event.clientX - tableHeaderRect.left;
 
     let line = 0;
@@ -357,11 +365,21 @@ const tableWidth = computed(() => {
 let activeRowForChoice = ref(null)
 
 const openDropdownNameUnits = (event, row) => {
-    styleDropDown.value.x = event.target.getBoundingClientRect().x
-    styleDropDown.value.y = event.target.getBoundingClientRect().y  + 40
-    styleDropDown.value.width = event.target.getBoundingClientRect().width
+    const input =  event.target.closest('.cell').querySelector('input')
+    styleDropDown.value.x = input.getBoundingClientRect().x
+    styleDropDown.value.y = input.getBoundingClientRect().y  + 40
+    styleDropDown.value.width = input.getBoundingClientRect().width
     dropdownIsActive.value = true
     activeRowForChoice.value = row
+}
+
+const toggleDropdownNameUnits = (event, row) => {
+    if(dropdownIsActive.value) {
+        closeDropdownNameUnits()
+    } else {
+        openDropdownNameUnits(event, row)
+    }
+
 }
 
 
@@ -371,8 +389,8 @@ const closeDropdownNameUnits = event => {
 }
 
 const choiceItem = item => {
-    dropdownIsActive.value = false
     activeRowForChoice.value.name_units = item
+    closeDropdownNameUnits()
 }
    
 onMounted(() => {
@@ -460,7 +478,9 @@ onMounted(() => {
                 <div class="table__content"
                     ref="tableContent"
                 >
-                    <div class="table__content-list">
+                    <div class="table__content-list"
+                        ref="tableList"
+                    >
                     <row-item
                         class="fake row"
                         :class="{active: skeletonIsActive}"
@@ -497,6 +517,7 @@ onMounted(() => {
                         @deleteRow="(row) => deleteRow(row)"
                         @openDropdownNameUnits="(event, row) => openDropdownNameUnits(event, row)"
                         @closeDropdownNameUnits="event => closeDropdownNameUnits(event)"
+                        @toggleDropdownNameUnits="(event, row) => toggleDropdownNameUnits(event, row)"
                     />
                     </div>
                     <total-info/>
@@ -585,7 +606,7 @@ onMounted(() => {
 }
 
 .cell {
-    padding: 10px 10px 10px 15px;
+    padding: 10px 10px 10px 10px;
     white-space: nowrap;
     overflow: hidden;
     display: flex;
@@ -668,7 +689,7 @@ input {
     width: 216px;
 }
 .name_product {
-    width: 166px;
+    width: 186px;
 }
 .total {
     width: 145px;

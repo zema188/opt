@@ -1,7 +1,8 @@
 
 <script setup>
 import IconMenu from '@/components/icons/IconMenu.vue'
-import { ref, watchEffect } from 'vue'
+import IconTriangle from '@/components/icons/IconTriangle.vue'
+import { onUpdated, ref, watchEffect } from 'vue'
 const props = defineProps({
     row: {
         type: Object,
@@ -33,7 +34,7 @@ const props = defineProps({
     }
 })
 
-const emit = defineEmits(['openDropdownNameUnits'])
+const emit = defineEmits(['openDropdownNameUnits', 'toggleDropdownNameUnits'])
 
 
 let pointsFormIsActive = ref(false)
@@ -41,9 +42,10 @@ const openDropdownNameUnits = (event) => {
     emit('openDropdownNameUnits', event, props.row)
 }
 
-const closeDropdownNameUnits = (event) => {
-    emit('closeDropdownNameUnits', event)
+const toggleDropdownNameUnits = (event) => {
+    emit('toggleDropdownNameUnits', event, props.row)
 }
+
 watchEffect(() => {
     if (props.updateData) {
         pointsFormIsActive.value = false
@@ -120,20 +122,33 @@ watchEffect(() => {
                     Удалить
                 </button>
             </div>
-            <input
+            <div class="input-w"
                 v-if="item[0] === 'name_units'"
-                v-model="props.row.name_units"
-                @focus="openDropdownNameUnits($event)"
-                @blur="closeDropdownNameUnits($event)"
-            />
+            >
+                <input
+                    v-model="props.row.name_units"
+                    @focus="openDropdownNameUnits($event)"
+                />
+                <div class="input-w__btn"
+                    @click="toggleDropdownNameUnits"
+                >
+                    <icon-triangle/>
+                </div>
+            </div>
             <input
                 v-if="item[0] === 'price'"
                 v-model="props.row.price"
             />
-            <input
+            <div class="input-w"
                 v-if="item[0] === 'quantity'"
-                v-model="props.row.quantity"
-            />
+            >
+                <input
+                    v-model="props.row.quantity"
+                />
+                <div class="input-w__btn">
+                    <icon-triangle/>
+                </div>
+            </div>
             <input
                 v-if="item[0] === 'name_product'"
                 v-model="props.row.name_product"
@@ -205,5 +220,28 @@ watchEffect(() => {
 
 .move {
     background: rgba(249, 249, 249, 0.5);
+}
+.input-w {
+    position: relative;
+    width: 100%;
+
+    &__btn {
+        right: 1px;
+        top: 1px;
+        position: absolute;
+        border-radius: 4px;
+        width: 21px;
+        height: calc(100% - 1px);
+        background-color: rgba(0, 0, 0, 0.07);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        & svg {
+            width: 5px;
+            height: 5px;
+            transform: rotate(90deg);
+        }
+    }
 }
 </style>
