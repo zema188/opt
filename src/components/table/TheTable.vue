@@ -4,6 +4,7 @@ import { onMounted, onUpdated, ref, reactive, computed } from "vue";
 import RowItem from "./RowItem.vue";
 import IconSettings from '@/components/icons/IconSettings.vue'
 import IconPlus from '@/components/icons/IconPlus.vue'
+import IconArrow from '@/components/icons/IconArrow.vue'
 import TotalInfo from "./TotalInfo.vue";
 import TheDropdown from "./TheDropdown.vue";
 
@@ -19,28 +20,28 @@ const header = ref([
 
 const data = ref([
     {
-        name_units: '',
+        name_units: 'Мраморный щебень фр. 2-5 мм, 25кг',
         price: 1231,
         quantity: 12,
         name_product: 'Мраморный щебень',
         total: 1231
     },
     {
-        name_units: '22222222222222г',
+        name_units: 'Мраморный щебень фр. 2-5 мм, 25кг',
         price: 1231,
         quantity: 12,
         name_product: 'Мраморный щебень',
         total: 1231
     },
     {
-        name_units: '3333333333333',
+        name_units: 'Мраморный щебень фр. 2-5 мм, 25кг',
         price: 1231,
         quantity: 12,
         name_product: 'Мраморный щебень',
         total: 1231
     },
     {
-        name_units: '444444444444444444444',
+        name_units: 'Мраморный щебень фр. 2-5 мм, 25кг',
         price: 1231,
         quantity: 12,
         name_product: 'Мраморный щебень',
@@ -66,6 +67,8 @@ const styleDropDown = ref({})
 let dropdownIsActive = ref(false)
 
 let hiddenFormIsActive = ref(false)
+let hiddenFormBtnsIsActive = ref(false)
+let hiddenFormLabelIsActive = ref(false)
 
 
 const activeDragObject = ref(null)
@@ -79,11 +82,16 @@ let heightRow = ref(45)
 const setItemRef = (el) => {
   headerItemsRefs.value.push(el);
 };
-
+let wasInitStyle = false
 const initStyle = () => {
-  headerItemsRefs.value.forEach((el) => {
-    reactiveStyleForCells[el.getAttribute('name')] = el.offsetWidth;
-  });
+    if(window.innerWidth > 539) {
+        if(wasInitStyle) retun
+        headerItemsRefs.value.forEach((el) => {
+            reactiveStyleForCells[el.getAttribute('name')] = el.offsetWidth;
+        });
+        wasInitStyle = true
+    }
+
 };
 
 const namesCols = ref({})
@@ -105,6 +113,7 @@ let startX = null
 let skeletonIsActive = ref(false)
 
 const startDrag = (event) => {
+    closeDropdownNameUnits()
     const selection = window.getSelection();
     if (selection.rangeCount > 0) {
         selection.removeAllRanges();
@@ -240,6 +249,7 @@ let directionLastSwap = null;
 let lastSwapColName = null
 
 const startDragCol = (event, number, headerItem) => {
+    updateData.value++
     closeDropdownNameUnits()
     if (activeDragObject.value) return;
 
@@ -254,9 +264,7 @@ const startDragCol = (event, number, headerItem) => {
     lastMouseX = event.clientX;
 
     const tableHeaderRect = tableHeader.value.getBoundingClientRect();
-    const headerItemRef = headerItemsRefs.value[number];
     const fakeHeaderLeft = event.clientX - event.offsetX + tableHeader.value.scrollLeft;
-    const fakeHeaderTop = headerItemRef.offsetTop + tableHeaderRect.y;
 
     fakeHeader.value.style.width = reactiveStyleForCells[headerItem[0]] + 'px';
     fakeHeader.value.style.height = tableHeaderRect.height + 'px';
@@ -272,16 +280,9 @@ const startDragCol = (event, number, headerItem) => {
 
 
 
-// let lastMouseXTest = null;
 const dragCol = (event) => {
     if (!dragColName.value || activeDragObject.value) return
     const tableHeaderRect = tableHeader.value.getBoundingClientRect();
-    // const isBeforeTable = event.clientX < tableHeaderRect.x + tableHeader.value.scrollLeft;
-    // const isAfterTable = event.clientX > tableHeaderRect.x + tableHeaderRect.width + tableHeader.value.scrollLeft;
-
-    // if (isBeforeTable || isAfterTable) {
-    //     stopDragCol(event);
-    // }
     const offsetXInsideTableHeader = event.clientX - tableHeaderRect.left;
 
     let line = 0;
@@ -389,6 +390,7 @@ const closeDropdownNameUnits = event => {
 }
 
 const choiceItem = item => {
+    updateData.value++
     activeRowForChoice.value.name_units = item
     closeDropdownNameUnits()
 }
@@ -397,6 +399,17 @@ onMounted(() => {
     initStyle()
     initNamesCol()
 })
+
+let mobileToPC = false
+
+addEventListener("resize", (event) => {
+    if(window.innerWidth <= 539) {
+        mobileToPC = true
+    } else if(mobileToPC){
+        initStyle()
+        initNamesCol()
+    }
+});
 </script>
 
 <template>
@@ -413,26 +426,52 @@ onMounted(() => {
     <div class="container">
         <div class="block-table block">
         <div class="table__top">
-            <button class="save">
+            <button class="save"
+                v-if="updateData"
+            >
                 Сохранить изменения
             </button>
             <div class="for-dropdown">
                 <button
-                    @click="hiddenFormIsActive = !hiddenFormIsActive"
+                    @click="hiddenFormIsActive = !hiddenFormIsActive, hiddenFormBtnsIsActive = true, hiddenFormLabelIsActive = false"
                 >
                     <icon-settings/>
                 </button>
                 <div class="dropwdown"
                     v-if="hiddenFormIsActive"
                 >
-                    <label class="dropwdown__item"
-                        v-for="(value, key) in namesCols" :key="key"
+                    <div class="dropwdown__btns"
+                        v-if="hiddenFormBtnsIsActive"
                     >
-                        <input type="checkbox"
-                            v-model="value.show"
-                        />
-                        {{ value.name }}
-                    </label>
+                        <!-- <button class="dropwdown__btn">
+                            Порядок столбцов
+                            <icon-arrow/>
+                        </button> -->
+                        <button class="dropwdown__btn"
+                            @click="hiddenFormLabelIsActive = !hiddenFormLabelIsActive, hiddenFormBtnsIsActive = false"
+                        >
+                            Отображение столбцов
+                            <icon-arrow/>
+                        </button>
+                    </div>
+                    <div class="hidden-form"
+                        v-if="hiddenFormLabelIsActive"
+                    >
+                        <p class="hidden-form__subtitle">
+                            <icon-arrow
+                                @click="hiddenFormBtnsIsActive = true, hiddenFormLabelIsActive = false"
+                            />
+                            Отображение столбцов
+                        </p>
+                        <label class="dropwdown__item"
+                            v-for="(value, key) in namesCols" :key="key"
+                        >
+                            <input type="checkbox"
+                                v-model="value.show"
+                            />
+                            {{ value.name }}
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
@@ -442,6 +481,7 @@ onMounted(() => {
                     ref="tableHeader"
                 >
                     <div class="fake-header"
+                        :class="{active: dragColName}"
                         ref="fakeHeader"
                         @mousemove="dragCol($event)"
                         @mouseup="stopDragCol($event)"
@@ -518,6 +558,7 @@ onMounted(() => {
                         @openDropdownNameUnits="(event, row) => openDropdownNameUnits(event, row)"
                         @closeDropdownNameUnits="event => closeDropdownNameUnits(event)"
                         @toggleDropdownNameUnits="(event, row) => toggleDropdownNameUnits(event, row)"
+                        @updateData="updateData++"
                     />
                     </div>
                     <total-info/>
@@ -571,6 +612,7 @@ onMounted(() => {
 }
 
 .table__header-item-w {
+    height: 41px;
     border-top: 1px solid var(--pale-grey);
     border-bottom: 1px solid var(--pale-grey);
     position: relative;
@@ -616,13 +658,14 @@ onMounted(() => {
         width: 100% !important;
         min-width: auto !important;
         flex-wrap: wrap;
-        padding: 7.5px 15px 7.5px 15px;
+        padding: 6.5px 15px 6.5px 15px;
     }
     &._menu {
         @media (max-width: 539px) {
             width: auto !important;
             min-width: auto !important;
             flex: 0 0 100%;
+            padding: 14px 10px 0px 15px;
         }
         & .menu-btn {
             display: flex;
@@ -647,6 +690,7 @@ onMounted(() => {
         box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.07);
         border: solid 1px var(--pale-grey);
         background-color: #fff;
+        padding-bottom: 18px;
         &:not(:last-child) {
             margin-bottom: 5px;
         }
@@ -680,7 +724,7 @@ input {
     width: 24px;
 }
 .name_units {
-    width: 620px;
+    width: 570px;
 }
 .price {
     width: 216px;
@@ -689,7 +733,7 @@ input {
     width: 216px;
 }
 .name_product {
-    width: 186px;
+    width: 200px;
 }
 .total {
     width: 145px;
@@ -781,9 +825,16 @@ input {
 
 .customHidden {
     opacity: 0;
-    position: absolute;
+    position: fixed;
     z-index: -100;
     pointer-events: none;
+    left: 0;
+    top: 0;
+    padding: 0;
+    &._points {
+        width: 0 !important;
+        min-width: 0 !important;
+    }
 }
 
 .for-dropdown {
@@ -802,5 +853,48 @@ input {
     cursor: all-scroll;
     background: rgba(249, 249, 249, 0.5);
     z-index: 10;
+    &.active {
+        &::after {
+            display: block;
+        }
+    }
+    &::after {
+        content: "";
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 5;
+        cursor: grab;
+        display: none;
+    }
+}
+.dropwdown__btn {
+    white-space: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    &:not(:last-child) {
+        margin-bottom: 10px
+    }
+    & svg {
+        width: 11px;
+    }
+}
+
+.hidden-form__subtitle {
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    white-space: nowrap;
+    & svg {
+        width: 11px;
+        cursor: pointer;
+        transform: rotate(180deg);
+    }
 }
 </style>

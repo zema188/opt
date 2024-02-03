@@ -7,8 +7,15 @@ import TheTable from '@/components/table/TheTable.vue'
 <template>
     <div class="wrapper">
         <header class="header container">
-          <div class="header__title">
-            Проведение ТО и мелкий ремонт
+          <div class="header__top">
+            <div class="menu-mobile">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="12" viewBox="0 0 15 12">
+                  <path d="M1 0h13a1 1 0 1 1 0 2H1a1 1 0 0 1 0-2zm0 5h13a1 1 0 0 1 0 2H1a1 1 0 1 1 0-2zm0 5h13a1 1 0 0 1 0 2H1a1 1 0 1 1 0-2z" fill="#A6B7D4" fill-rule="evenodd"/>
+              </svg>
+            </div>
+            <div class="header__title">
+              Проведение ТО и мелкий ремонт
+            </div>
           </div>
           <div class="header__action">
             <nav class="nav">
@@ -34,6 +41,9 @@ import TheTable from '@/components/table/TheTable.vue'
 <style lang="scss">
 .header {
   margin-bottom: 21px;
+  @media (max-width: 539px) {
+    margin-bottom: 26px;
+  }
 		&__title {
       font-size: 30px;
       font-weight: normal;
@@ -42,7 +52,6 @@ import TheTable from '@/components/table/TheTable.vue'
       line-height: normal;
       letter-spacing: normal;
       color: #000;
-      margin-bottom: 21px;
       @media (max-width: 539px) {
         
       }
@@ -119,5 +128,21 @@ import TheTable from '@/components/table/TheTable.vue'
     border-radius: 10px;
   }
 }
+.menu-mobile {
+  display: none;
+  padding-top: 11px;
+  @media (max-width: 539px) {
+    display: block;
+  }
+}
 
+
+.header__top {
+  display: flex;
+  gap: 7px;
+  margin-bottom: 21px;
+  @media (max-width: 539px) {
+    margin-bottom: 15px;
+  }
+}
 </style>

@@ -52,4 +52,7 @@ body {
         padding-left: 10px;
         padding-right: 10px;
     }
+    .wrapper {
+        padding-top: 12px;
+    }
 }

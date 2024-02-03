@@ -24,7 +24,7 @@ const props = defineProps({
         type: Object,
     },
     updateData: {
-        type: Boolean,
+        type: Number,
     },
     goods: {
         type: Array,
@@ -71,7 +71,8 @@ watchEffect(() => {
                 {
                     _menu: item[0] === 'menu',
                     _points: item[0] === 'points',
-                    move: props.dragColName === item[0]
+                    move: props.dragColName === item[0],
+                    customHidden: namesCols && !(namesCols[item[0]] && namesCols[item[0]].show)
                 },
             ]"
         >
@@ -128,6 +129,7 @@ watchEffect(() => {
                 <input
                     v-model="props.row.name_units"
                     @focus="openDropdownNameUnits($event)"
+                    @input="$emit('updateData')"
                 />
                 <div class="input-w__btn"
                     @click="toggleDropdownNameUnits"
@@ -138,12 +140,14 @@ watchEffect(() => {
             <input
                 v-if="item[0] === 'price'"
                 v-model="props.row.price"
+                @input="$emit('updateData')"
             />
             <div class="input-w"
                 v-if="item[0] === 'quantity'"
             >
                 <input
                     v-model="props.row.quantity"
+                    @input="$emit('updateData')"
                 />
                 <div class="input-w__btn">
                     <icon-triangle/>
@@ -152,10 +156,12 @@ watchEffect(() => {
             <input
                 v-if="item[0] === 'name_product'"
                 v-model="props.row.name_product"
+                @input="$emit('updateData')"
             />
             <input
                 v-if="item[0] === 'total'"
                 v-model="props.row.total"
+                @input="$emit('updateData')"
             />
         </div>
     </div>
