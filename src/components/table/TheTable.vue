@@ -149,13 +149,11 @@ const startDragRow = (event, row, i) => {
     fakeData.value = { ...row }
 
     dragRowRef.value.classList.add('skeleton')
-    // console.log(tableWidth + 'px')
-    // dragRowRef.value.style.width = tableWidth + 'px'
 
     const box = event.target.getBoundingClientRect()
 
-    const top = box.top + window.pageYOffset  // Adjust for vertical scroll
-    const left = box.left + window.pageXOffset  // Adjust for horizontal scroll
+    const top = box.top + window.pageYOffset
+    const left = box.left + window.pageXOffset
 
     shiftX = event.pageX - left
     shiftY = event.pageY - top - i * heightRow.value + scrollY
@@ -273,7 +271,8 @@ const startDragCol = (event, number, headerItem) => {
 
 // let lastMouseXTest = null;
 const dragCol = (event) => {
-    if (!dragColName.value || activeDragObject.value) return;
+    if (!dragColName.value || activeDragObject.value) return
+    if(tableHeader.value.getBoundingClientRect().x >= event.clientX || tableHeader.value.getBoundingClientRect().x + tableHeader.value.getBoundingClientRect().width < event.clientX) stopDragCol(event)
     const tableHeaderRect = tableHeader.value.getBoundingClientRect();
     const offsetXInsideTableHeader = event.clientX - tableHeaderRect.left;
 
@@ -291,7 +290,6 @@ const dragCol = (event) => {
 
                 const currentIndex = dragColCurrentIndex.value;
                 const direction = (lastMouseX === null ? 0 : event.clientX - lastMouseX) >= 0 ? 'right' : 'left'
-                console.log(direction)
                 if(lastSwapColName && directionLastSwap) {
                     if(lastSwapColName === element[0] && directionLastSwap === direction) {
                         return
@@ -421,7 +419,6 @@ onMounted(() => {
             </div>
         </div>
             <div class="table"
-                @mouseleave="stopDragCol($event)"
             >
                 <div class="table__header"
                     ref="tableHeader"
@@ -495,6 +492,7 @@ onMounted(() => {
                         :reactiveStyleForCells="reactiveStyleForCells"
                         :namesCols="namesCols"
                         :updateData="updateData"
+                        :dragColName="dragColName"
                         @startDragRow="(event, row, number) => startDragRow(event, row, number)"
                         @deleteRow="(row) => deleteRow(row)"
                         @openDropdownNameUnits="(event, row) => openDropdownNameUnits(event, row)"
@@ -781,8 +779,7 @@ input {
     position: fixed;
     border: 1px solid var(--pale-grey);
     cursor: all-scroll;
-    background: #f9f9f9;
+    background: rgba(249, 249, 249, 0.5);
     z-index: 10;
-    // transform: translate(-50%, 0);
 }
 </style>

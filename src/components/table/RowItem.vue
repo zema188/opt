@@ -27,6 +27,9 @@ const props = defineProps({
     },
     goods: {
         type: Array,
+    },
+    dragColName: {
+        type: Number,
     }
 })
 
@@ -39,7 +42,6 @@ const openDropdownNameUnits = (event) => {
 }
 
 const closeDropdownNameUnits = (event) => {
-    console.log(event.relatedTarget)
     emit('closeDropdownNameUnits', event)
 }
 watchEffect(() => {
@@ -67,6 +69,7 @@ watchEffect(() => {
                 {
                     _menu: item[0] === 'menu',
                     _points: item[0] === 'points',
+                    move: props.dragColName === item[0]
                 },
             ]"
         >
@@ -198,5 +201,9 @@ watchEffect(() => {
     @media (max-width: 539px) {
         display: block;
     }
+}
+
+.move {
+    background: rgba(249, 249, 249, 0.5);
 }
 </style>
