@@ -234,30 +234,52 @@ const lineHeight = (() => {
 const dragColName = ref(null)
 const dragColCurrentIndex = ref(null)
 
-const startDragCol = (event, number, name) => {
-    console.log('name', name)   
-    if(activeDragObject.value) return
-
-    const selection = window.getSelection()
-
-    if (selection.rangeCount > 0) {
-        selection.removeAllRanges()
-    }
-
-    dragColName.value = name
-    dragColCurrentIndex.value = number
-};
-
+let fakeHeader = ref(null)
 let lastMouseX = null;
 let directionLastSwap = null;
 let lastSwapColName = null
 
+const startDragCol = (event, number, headerItem) => {
+    if (activeDragObject.value) return;
+
+    const selection = window.getSelection();
+
+    if (selection.rangeCount > 0) {
+        selection.removeAllRanges();
+    }
+
+    dragColName.value = headerItem[0];
+    dragColCurrentIndex.value = number;
+    lastMouseX = event.clientX;
+
+    const tableHeaderRect = tableHeader.value.getBoundingClientRect();
+    const headerItemRef = headerItemsRefs.value[number];
+    const fakeHeaderLeft = event.clientX - event.offsetX + tableHeader.value.scrollLeft;
+    const fakeHeaderTop = headerItemRef.offsetTop + tableHeaderRect.y;
+
+    fakeHeader.value.style.width = reactiveStyleForCells[headerItem[0]] + 'px';
+    fakeHeader.value.style.height = tableHeaderRect.height + 'px';
+    fakeHeader.value.style.left = fakeHeaderLeft + 'px';
+    fakeHeader.value.style.top = tableHeader.value.getBoundingClientRect().y + 'px';
+
+    const box = event.target.getBoundingClientRect()
+
+    const left = box.left + window.pageXOffset  // Adjust for horizontal scroll
+    shiftX = event.pageX - left
+};
+
+
+
+
+// let lastMouseXTest = null;
 const dragCol = (event) => {
     if (!dragColName.value || activeDragObject.value) return;
     const tableHeaderRect = tableHeader.value.getBoundingClientRect();
     const offsetXInsideTableHeader = event.clientX - tableHeaderRect.left;
 
     let line = 0;
+
+    fakeHeader.value.style.left = event.pageX - shiftX + 'px'
 
     for (let index = 0; index < header.value.length; index++) {
         const element =  header.value[index];
@@ -269,6 +291,7 @@ const dragCol = (event) => {
 
                 const currentIndex = dragColCurrentIndex.value;
                 const direction = (lastMouseX === null ? 0 : event.clientX - lastMouseX) >= 0 ? 'right' : 'left'
+                console.log(direction)
                 if(lastSwapColName && directionLastSwap) {
                     if(lastSwapColName === element[0] && directionLastSwap === direction) {
                         return
@@ -299,6 +322,9 @@ const stopDragCol = (event) => {
     lastMouseX = null;
     directionLastSwap = null;
     lastSwapColName = null
+
+    fakeHeader.value.style.width = 0 + 'px'
+    fakeHeader.value.style.height =  0 + 'px'
 };
 
 const addNewRow = () => {
@@ -400,6 +426,11 @@ onMounted(() => {
                 <div class="table__header"
                     ref="tableHeader"
                 >
+                    <div class="fake-header"
+                        ref="fakeHeader"
+                        @mousemove="dragCol($event)"
+                        @mouseup="stopDragCol($event)"
+                    ></div>
                     <div class="table__header-item-w"
                         v-for="(item, index) of header"
                         :key="index"
@@ -410,7 +441,7 @@ onMounted(() => {
                             {activeCol: dragColName === item[0]},
                             {customHidden: !(namesCols[item[0]] && namesCols[item[0]].show)}
                         ]"
-                        @mousedown="startDragCol($event, index, item[0])"
+                        @mousedown="startDragCol($event, index, item)"
                         @mousemove="dragCol($event)"
                         @mouseup="stopDragCol($event)"
                     >
@@ -744,5 +775,14 @@ input {
     & svg {
         width: 15px;
     }
+}
+
+.fake-header {
+    position: fixed;
+    border: 1px solid var(--pale-grey);
+    cursor: all-scroll;
+    background: #f9f9f9;
+    z-index: 10;
+    // transform: translate(-50%, 0);
 }
 </style>
