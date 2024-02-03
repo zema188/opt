@@ -24,12 +24,24 @@ const props = defineProps({
     },
     updateData: {
         type: Boolean,
+    },
+    goods: {
+        type: Array,
     }
 })
 
+const emit = defineEmits(['openDropdownNameUnits'])
+
 
 let pointsFormIsActive = ref(false)
+const openDropdownNameUnits = (event) => {
+    emit('openDropdownNameUnits', event, props.row)
+}
 
+const closeDropdownNameUnits = (event) => {
+    console.log(event.relatedTarget)
+    emit('closeDropdownNameUnits', event)
+}
 watchEffect(() => {
     if (props.updateData) {
         pointsFormIsActive.value = false
@@ -108,6 +120,8 @@ watchEffect(() => {
             <input
                 v-if="item[0] === 'name_units'"
                 v-model="props.row.name_units"
+                @focus="openDropdownNameUnits($event)"
+                @blur="closeDropdownNameUnits($event)"
             />
             <input
                 v-if="item[0] === 'price'"

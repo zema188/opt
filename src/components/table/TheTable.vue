@@ -5,6 +5,7 @@ import RowItem from "./RowItem.vue";
 import IconSettings from '@/components/icons/IconSettings.vue'
 import IconPlus from '@/components/icons/IconPlus.vue'
 import TotalInfo from "./TotalInfo.vue";
+import TheDropdown from "./TheDropdown.vue";
 
 const header = ref([
     ['menu',''],
@@ -18,34 +19,51 @@ const header = ref([
 
 const data = ref([
     {
-        name_units: '1111111111111',
-        price: 'цена',
+        name_units: '',
+        price: 1231,
         quantity: 12,
         name_product: 'Мраморный щебень',
         total: 1231
     },
     {
         name_units: '22222222222222г',
-        price: 'цена',
+        price: 1231,
         quantity: 12,
         name_product: 'Мраморный щебень',
         total: 1231
     },
     {
         name_units: '3333333333333',
-        price: 'цена',
+        price: 1231,
         quantity: 12,
         name_product: 'Мраморный щебень',
         total: 1231
     },
     {
         name_units: '444444444444444444444',
-        price: 'цена',
+        price: 1231,
         quantity: 12,
         name_product: 'Мраморный щебень',
         total: 1231
     },
 ])
+
+const goods = ref([
+    'Мраморный щебень фр. 2-5 мм, 25кг',
+    'Мраморный щебень фр. 2-5 мм, 25кг (белый)',
+    'Мраморный щебень фр. 2-5 мм, 25кг (вайт)',
+    'Мраморный щебень фр. 2-5 мм, 25кг, возврат',
+    'Мраморный щебень фр. 2-5 мм, 1т',
+    'Зеленый щебень фр. 2-5 мм, 25кг',
+    'Зеленый щебень фр. 2-5 мм, 25кг (белый)',
+    'Зеленый щебень фр. 2-5 мм, 25кг (вайт)',
+    'Зеленый щебень фр. 2-5 мм, 25кг, возврат',
+    'Зеленый щебень фр. 2-5 мм, 1т',
+])
+
+const styleDropDown = ref({})
+
+let dropdownIsActive = ref(false)
 
 let hiddenFormIsActive = ref(false)
 
@@ -217,7 +235,7 @@ const dragColName = ref(null)
 const dragColCurrentIndex = ref(null)
 
 const startDragCol = (event, number, name) => {
-    console.log('name', name)
+    console.log('name', name)   
     if(activeDragObject.value) return
 
     const selection = window.getSelection()
@@ -227,15 +245,13 @@ const startDragCol = (event, number, name) => {
     }
 
     dragColName.value = name
-    const tableHeaderRect = tableHeader.value.getBoundingClientRect();
-
-    const offsetXInsideTableHeader = event.clientX - tableHeaderRect.left;
-
-
     dragColCurrentIndex.value = number
-
 };
+
+let lastMouseX = null;
+let directionLastSwap = null;
 let lastSwapColName = null
+
 const dragCol = (event) => {
     if (!dragColName.value || activeDragObject.value) return;
     const tableHeaderRect = tableHeader.value.getBoundingClientRect();
@@ -250,16 +266,25 @@ const dragCol = (event) => {
 
         if (offsetXInsideTableHeader <= line) {
             if (element[0] !== dragColName.value) {
+
                 const currentIndex = dragColCurrentIndex.value;
+                const direction = (lastMouseX === null ? 0 : event.clientX - lastMouseX) >= 0 ? 'right' : 'left'
+                if(lastSwapColName && directionLastSwap) {
+                    if(lastSwapColName === element[0] && directionLastSwap === direction) {
+                        return
+                    } else {
+                        lastSwapColName = element[0]
+                        directionLastSwap = direction
+                    }
+                } else {
+                    lastSwapColName = element[0]
+                    directionLastSwap = direction
+                }
+
+                lastMouseX = event.clientX;
                 const tempArray1 = header.value[index].slice();
                 const tempArray2 = header.value[currentIndex].slice();
-
                 [header.value[index], header.value[currentIndex]] = [tempArray2, tempArray1];
-                
-
-                // lastSwapColName = element[0]
-
-
                 dragColCurrentIndex.value = index;
             }
             return false;
@@ -271,6 +296,9 @@ const dragCol = (event) => {
 const stopDragCol = (event) => {
     dragColName.value = null
     dragColCurrentIndex.value = null
+    lastMouseX = null;
+    directionLastSwap = null;
+    lastSwapColName = null
 };
 
 const addNewRow = () => {
@@ -292,36 +320,41 @@ const deleteRow = numberRow => {
     updateData.value++
 }
 
-// const tableWidth = () => {
-//     if(reactiveStyleForCells.value) {
-//         for (const [key, value] of Object.entries(reactiveStyleForCells.value)) {
-//             width += parseFloat(value); // Преобразование строки в число
-//         }
-
-//         return reactiveStyleForCells.value[0]
-//     }
-//     return null
-// }
-
 const tableWidth = computed(() => {
     let width = 0
     if (reactiveStyleForCells) {
         for (const [key, value] of Object.entries(reactiveStyleForCells)) {
             width += value
         }
-        console.log(width)
         return width;
     }
     return null;
 })
+let activeRowForChoice = ref(null)
 
+const openDropdownNameUnits = (event, row) => {
+    styleDropDown.value.x = event.target.getBoundingClientRect().x
+    styleDropDown.value.y = event.target.getBoundingClientRect().y  + 40
+    styleDropDown.value.width = event.target.getBoundingClientRect().width
+    dropdownIsActive.value = true
+    activeRowForChoice.value = row
+}
+
+
+const closeDropdownNameUnits = event => {
+    dropdownIsActive.value = false
+    activeRowForChoice.value = {}
+}
+
+const choiceItem = item => {
+    dropdownIsActive.value = false
+    activeRowForChoice.value.name_units = item
+}
    
 onMounted(() => {
     initStyle()
     initNamesCol()
 })
-
-
 </script>
 
 <template>
@@ -361,7 +394,8 @@ onMounted(() => {
                 </div>
             </div>
         </div>
-            <div class="table" 
+            <div class="table"
+                @mouseleave="stopDragCol($event)"
             >
                 <div class="table__header"
                     ref="tableHeader"
@@ -432,15 +466,21 @@ onMounted(() => {
                         :updateData="updateData"
                         @startDragRow="(event, row, number) => startDragRow(event, row, number)"
                         @deleteRow="(row) => deleteRow(row)"
+                        @openDropdownNameUnits="(event, row) => openDropdownNameUnits(event, row)"
+                        @closeDropdownNameUnits="event => closeDropdownNameUnits(event)"
                     />
                     </div>
-
                     <total-info/>
                 </div>
             </div>
         </div>
     </div>
-
+    <the-dropdown
+        :goods="goods"
+        :isActive="dropdownIsActive"
+        :styles="styleDropDown"
+        @choiceItem="item => choiceItem(item)"
+    />
 </template>
 
 <style lang="scss">
