@@ -2,7 +2,7 @@
 <script setup>
 import IconMenu from '@/components/icons/IconMenu.vue'
 import IconTriangle from '@/components/icons/IconTriangle.vue'
-import { onUpdated, ref, watchEffect } from 'vue'
+import { ref, watchEffect } from 'vue'
 const props = defineProps({
     row: {
         type: Object,

@@ -1,6 +1,6 @@
 
 <script setup>
-import { onMounted, onUpdated, ref, reactive, computed } from "vue";
+import { onMounted, ref, reactive, computed } from "vue";
 import RowItem from "./RowItem.vue";
 import IconSettings from '@/components/icons/IconSettings.vue'
 import IconPlus from '@/components/icons/IconPlus.vue'
@@ -406,6 +406,10 @@ const handleLineMouseOut = event => {
     event.target.style.opacity = 0
 }
 
+const save = () => {
+    console.log('test')
+}
+
 onMounted(() => {
     initStyle()
     initNamesCol()
@@ -439,6 +443,7 @@ addEventListener("resize", (event) => {
         <div class="table__top">
             <button class="save"
                 v-if="updateData"
+                @click="save()"
             >
                 Сохранить изменения
             </button>
