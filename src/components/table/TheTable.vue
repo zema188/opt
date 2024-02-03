@@ -383,7 +383,6 @@ const toggleDropdownNameUnits = (event, row) => {
 
 }
 
-
 const closeDropdownNameUnits = event => {
     dropdownIsActive.value = false
     activeRowForChoice.value = {}
@@ -394,7 +393,19 @@ const choiceItem = item => {
     activeRowForChoice.value.name_units = item
     closeDropdownNameUnits()
 }
-   
+ 
+const handleLineMouseOver = event => {
+    console.log(event.target)
+    event.target.style.height = lineHeight() + 'px'
+    event.target.style.opacity = 1
+}
+
+const handleLineMouseOut = event => {
+    console.log(event.target)
+    event.target.style.height = '100%'
+    event.target.style.opacity = 0
+}
+
 onMounted(() => {
     initStyle()
     initNamesCol()
@@ -509,6 +520,8 @@ addEventListener("resize", (event) => {
                         <div class="line"
                             v-if="tableContent"
                             :style="{ height: activeDragObject === item[0] ? lineHeight() + 'px' : '100%'}"
+                            @mouseover="handleLineMouseOver($event)"
+                            @mouseout="handleLineMouseOut($event)"
                             @mousedown="startDrag($event)"
                             @mousemove="drag($event)"
                             @mouseup="stopDrag($event)"
