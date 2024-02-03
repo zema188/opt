@@ -357,7 +357,7 @@ const tableWidth = computed(() => {
     let width = 0
     if (reactiveStyleForCells) {
         for (const [key, value] of Object.entries(reactiveStyleForCells)) {
-            width += value
+            if(namesCols.value[key].show) width += value
         }
         return width;
     }
@@ -531,6 +531,7 @@ addEventListener("resize", (event) => {
                         :heightRow="heightRow"
                         :header="header"
                         :reactiveStyleForCells="reactiveStyleForCells"
+                        :namesCols="namesCols"
                         @mousemove="dragRow($event)"
                         @mouseup="stopDragRow($event)"
                         @mouseout="stopDragRow($event)"
