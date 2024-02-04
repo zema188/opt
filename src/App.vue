@@ -53,7 +53,7 @@ import TheTable from '@/components/table/TheTable.vue'
       letter-spacing: normal;
       color: #000;
       @media (max-width: 539px) {
-        
+        line-height: 110%;
       }
 		}
 
@@ -64,7 +64,8 @@ import TheTable from '@/components/table/TheTable.vue'
       gap: 20px;
       padding-right: 15px;
       & button {
-        padding-top: 4px;
+        padding-top: 7px;
+        padding-right: 2px;
         @media (max-width: 539px) {
           display: none;
         }
@@ -82,16 +83,17 @@ import TheTable from '@/components/table/TheTable.vue'
       cursor: pointer;
       &.active {
         color: #000;
+        margin-right: 5px;
       }
 		}
 }
 
 
 .block-add {
-  padding: 18px 25px;
+  padding: 19px 23px;
   margin-bottom: 25px;
   & .btn_blue {
-    padding: 10px 5px 8px 7px;
+    padding: 9px 15px 9px 7px;
   }
 }
 
@@ -105,7 +107,7 @@ import TheTable from '@/components/table/TheTable.vue'
     justify-content: flex-end;
     align-items: center;
     gap: 20px;
-    padding: 10px 15px;
+    padding: 7px 15px 9px;
     @media (max-width: 539px) {
       display: none;
     }
@@ -139,10 +141,10 @@ import TheTable from '@/components/table/TheTable.vue'
 
 .header__top {
   display: flex;
-  gap: 7px;
-  margin-bottom: 21px;
+  margin-bottom: 18px;
   @media (max-width: 539px) {
-    margin-bottom: 15px;
+    margin-bottom: 21px;
+    gap: 25px;
   }
 }
 </style>

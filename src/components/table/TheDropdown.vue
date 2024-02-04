@@ -39,13 +39,20 @@ const props = defineProps({
     border-radius: 5px;
     box-shadow: 0 0 3px 0 #000, inset 0 1px 2px 0 rgba(255, 255, 255, 0.5);
     background-color: #fff;
-    padding: 7px 10px;
-    height: 300px;
+    padding: 5px 10px;
+    height: 145px;
     overflow: auto;
 &__item {
+    font-size: 14px;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #161616;
     cursor: pointer;
     &:not(:last-child) {
-        margin-bottom: 20px;
+        margin-bottom: 12px;
     }
 }
 }

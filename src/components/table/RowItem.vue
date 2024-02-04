@@ -83,7 +83,7 @@ watchEffect(() => {
                 Действие
             </div>
             <div class="subtitle" v-if="item[0] === 'name_units'">
-                Название
+                Наименование еденицы
             </div>
             <div class="subtitle" v-if="item[0] === 'price'">
                 Цена
@@ -142,22 +142,22 @@ watchEffect(() => {
                 v-model="props.row.price"
                 @input="$emit('updateData')"
             />
-            <div class="input-w"
+            <input
                 v-if="item[0] === 'quantity'"
+                v-model="props.row.quantity"
+                @input="$emit('updateData')"
+            />
+            <div class="input-w"
+                v-if="item[0] === 'name_product'"
             >
                 <input
-                    v-model="props.row.quantity"
+                    v-model="props.row.name_product"
                     @input="$emit('updateData')"
                 />
                 <div class="input-w__btn">
                     <icon-triangle/>
                 </div>
             </div>
-            <input
-                v-if="item[0] === 'name_product'"
-                v-model="props.row.name_product"
-                @input="$emit('updateData')"
-            />
             <input
                 v-if="item[0] === 'total'"
                 v-model="props.row.total"
@@ -171,16 +171,22 @@ watchEffect(() => {
 ._points {
     position: relative;
     overflow: visible;
+    .subtitle {
+        margin-bottom: 0px;
+    }
 }
 
 .points-w {
-    width: 10px;
+    width: 6px;
     display: flex;
     flex-direction: column;
     gap: 2px;
     justify-content: center;
     align-items: center;
     cursor: pointer;
+    @media (max-width: 539px) {
+        width: 5px;
+    }
 }
 
 .points__dropdown {
@@ -201,17 +207,20 @@ watchEffect(() => {
     color: #ae0a0a;
     z-index: 1;
     @media (max-width: 539px) {
-        left: 17px;
-        top: calc(100% - 0px);
+        left: 14px;
+        top: calc(100% - 5px);
         width: 70%;
-        max-width: 355px;
+        max-width: 179px;
         text-align: left;
-        padding: 7px 19.4px 7px 10px;
+        padding: 6px 20px 6px 10px;
     }
 }
 
 ._menu {
     padding: 10px 10px 10px 15px;
+    .subtitle {
+        margin-bottom: 0px;
+    }
 }
 
 .subtitle {
@@ -219,6 +228,7 @@ watchEffect(() => {
     font-size: 10px;
     color: #8f8f8f;
     flex: 0 0 100%;
+    margin-bottom: 3px;
     @media (max-width: 539px) {
         display: block;
     }
@@ -235,10 +245,10 @@ watchEffect(() => {
         right: 1px;
         top: 1px;
         position: absolute;
-        border-radius: 4px;
+        border-radius: 0px 4px 4px 0px;
         width: 21px;
-        height: calc(100% - 1px);
-        background-color: rgba(0, 0, 0, 0.07);
+        height: calc(100% - 2px);
+        background-color: #f6f5f3;
         display: flex;
         justify-content: center;
         align-items: center;

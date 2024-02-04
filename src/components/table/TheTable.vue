@@ -14,18 +14,11 @@ const header = ref([
     ['name_units', 'Наименование еденицы'],
     ['price', 'Цена'],
     ['quantity', 'Кол-во'],
-    ['name_product', 'Наименование товара'],
+    ['name_product', 'Название товара'],
     ['total', 'Итого'],
 ])
 
 const data = ref([
-    {
-        name_units: 'Мраморный щебень фр. 2-5 мм, 25кг',
-        price: 1231,
-        quantity: 12,
-        name_product: 'Мраморный щебень',
-        total: 1231
-    },
     {
         name_units: 'Мраморный щебень фр. 2-5 мм, 25кг',
         price: 1231,
@@ -87,7 +80,7 @@ const initStyle = () => {
     if(window.innerWidth > 539) {
         if(wasInitStyle) retun
         headerItemsRefs.value.forEach((el) => {
-            reactiveStyleForCells[el.getAttribute('name')] = el.offsetWidth;
+            reactiveStyleForCells[el.getAttribute('name')] = el.offsetWidth
         });
         wasInitStyle = true
     }
@@ -129,7 +122,7 @@ const drag = (event) => {
     const currentWidth = reactiveStyleForCells[dragObject.getAttribute('name')];
     const shift = currentWidth - (startX - event.clientX);
 
-    if(shift < 40) return
+    if(shift < 24) return
     reactiveStyleForCells[dragObject.getAttribute('name')] = shift;
     startX = event.clientX;
   }
@@ -291,8 +284,7 @@ const dragCol = (event) => {
 
     for (let index = 0; index < header.value.length; index++) {
         const element =  header.value[index];
-        
-        line += reactiveStyleForCells[element[0]];
+        if(namesCols.value[element[0]].show) line += reactiveStyleForCells[element[0]];
 
         if (offsetXInsideTableHeader <= line) {
             if (element[0] !== dragColName.value) {
@@ -403,7 +395,7 @@ const handleLineMouseOver = event => {
 const handleLineMouseOut = event => {
     console.log(event.target)
     event.target.style.height = '100%'
-    event.target.style.opacity = 0
+    // event.target.style.opacity = 0
 }
 
 const save = () => {
@@ -596,6 +588,9 @@ addEventListener("resize", (event) => {
 <style lang="scss">
 .table {
     overflow: auto;
+    @media (max-width: 539px) {
+        overflow: visible;
+    }
     &__header {
         display: flex;
         @media (max-width: 539px) {
@@ -616,7 +611,6 @@ addEventListener("resize", (event) => {
     &__content {
         position: relative;
         padding-bottom: 25px;
-        padding-top: 5px;
         @media (max-width: 539px) {
             padding-top: 0px;
         }
@@ -631,12 +625,15 @@ addEventListener("resize", (event) => {
 }
 
 .table__header-item-w {
-    height: 41px;
+    height: 46px;
     border-top: 1px solid var(--pale-grey);
     border-bottom: 1px solid var(--pale-grey);
     position: relative;
     cursor: all-scroll;
-    border-right: 1px solid var(--pale-grey);
+    // border-right: 1px solid var(--pale-grey);
+    .cell {
+        padding: 10px 10px 10px 10px;
+    }
     & .table__header-item {
         
     }
@@ -667,7 +664,7 @@ addEventListener("resize", (event) => {
 }
 
 .cell {
-    padding: 10px 10px 10px 10px;
+    padding: 10px 11px 10px 10px;
     white-space: nowrap;
     overflow: hidden;
     display: flex;
@@ -677,19 +674,21 @@ addEventListener("resize", (event) => {
         width: 100% !important;
         min-width: auto !important;
         flex-wrap: wrap;
-        padding: 6.5px 15px 6.5px 15px;
+        padding: 0px 14px 13px 14px;
+        gap: 2px;
     }
     &._menu {
         @media (max-width: 539px) {
             width: auto !important;
             min-width: auto !important;
             flex: 0 0 100%;
-            padding: 14px 10px 0px 15px;
+            padding: 0 10px 13px 14px;
+            gap: 0px;
         }
         & .menu-btn {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
             position: relative;
             cursor: grab;
         }
@@ -709,12 +708,18 @@ addEventListener("resize", (event) => {
         box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.07);
         border: solid 1px var(--pale-grey);
         background-color: #fff;
-        padding-bottom: 18px;
+        padding-bottom: 11px;
+        padding-top: 12px;
         &:not(:last-child) {
             margin-bottom: 5px;
         }
     }
     & ._points {
+        padding: 10px 10px 10px 9px;
+        @media (max-width: 539px) {
+            padding: 0px 10px 13px 13px;
+            gap: 5px;
+        }
         & span {
             display: block;
             width: 3px;
@@ -737,36 +742,37 @@ input {
 }
 
 .menu {
-    width: 49px;
+    width: 48px;
 }
 .points {
     width: 24px;
 }
 .name_units {
-    width: 570px;
+    width: 624px;
 }
 .price {
-    width: 216px;
+    width: 217px;
 }
 .quantity {
-    width: 216px;
+    width: 217px;
 }
 .name_product {
-    width: 200px;
+    width: 168px;
 }
 .total {
-    width: 145px;
+    width: 144px;
 }
 
 .line {
     position: absolute;
-    right: -1px;
+    right: 0px;
     top: 0;
     width: 1px;
     height: 100%;
     background: var(--pale-grey);
     cursor: e-resize;
-    opacity: 0;
+    opacity: 1px;
+    height: 100%;
     &::after {
         content: "";
         width: 15px;
@@ -853,6 +859,7 @@ input {
     &._points {
         width: 0 !important;
         min-width: 0 !important;
+        padding: 0px;
     }
 }
 

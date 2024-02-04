@@ -4,6 +4,7 @@
 
 body {
     background-color: #fbfcfd;
+
 }
 
 .wrapper {
@@ -54,5 +55,8 @@ body {
     }
     .wrapper {
         padding-top: 12px;
+    }
+    body {
+        background: #fff;
     }
 }

@@ -45,8 +45,8 @@
 
 <style lang="scss" scoped>
 .total {
-    min-width: 305px;
-    margin: 20px 0 0 auto;
+    min-width: 320px;
+    margin: 15px 0 0 auto;
     padding-right: 15px;
     @media (max-width: 539px) {
         width: 100%;
@@ -55,11 +55,15 @@
         margin: 25px 0 0 auto;
     }
     &__list {
-        padding: 15px;
+        padding: 13px 15px;
         border-radius: 5px;
         border: solid 1px var(--pale-grey);
         background-color: #fbfcfd;
         margin-bottom: 5px;
+        @media (max-width: 539px) {
+            padding: 11px 14px 14px 14px;
+            margin-bottom: 5px;
+        }
     }
 
     &__item {
@@ -69,20 +73,29 @@
         gap: 10px;
         flex-wrap: wrap;
         &:not(:last-child) {
-            margin-bottom: 15px;
+            margin-bottom: 13px;
+            @media (max-width: 539px) {
+                margin-bottom: 12px;
+            }
         }
         & span {
             font-size: 14px;
             color: #8f8f8f;
+            @media (max-width: 539px) {
+                font-size: 16px;
+            }
         }
         & p {
             font-size: 14px;
             color: #000;
+            @media (max-width: 539px) {
+                font-size: 16px;
+            }
         }
     }
 
     &__all {
-        padding: 15px;
+        padding: 12px 15px;
         border-radius: 5px;
         border: solid 1px var(--pale-grey);
         background-color: #fbfcfd;
@@ -91,14 +104,23 @@
         justify-content: space-between;
         gap: 10px;
         flex-wrap: wrap;
+        @media (max-width: 539px) {
+            padding: 10px 15px 15px 15px;
+        }
         & span {
             font-size: 14px;
             color: #000;
+            @media (max-width: 539px) {
+                font-size: 16px;
+            }
         }
         & p {
             font-size: 14px;
             font-weight: 600;
             color: #000;
+            @media (max-width: 539px) {
+                font-size: 16px;
+            }
         }
     }
 }
