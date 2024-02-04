@@ -78,7 +78,7 @@ const setItemRef = (el) => {
 let wasInitStyle = false
 const initStyle = () => {
     if(window.innerWidth > 539) {
-        if(wasInitStyle) retun
+        if(wasInitStyle) return
         headerItemsRefs.value.forEach((el) => {
             reactiveStyleForCells[el.getAttribute('name')] = el.offsetWidth
         });
@@ -153,14 +153,24 @@ const startDragRow = (event, row, i) => {
     fakeData.value = { ...row }
 
     dragRowRef.value.classList.add('skeleton')
+    dragRowRef.value.style.height = heightRow + 'px' + '!important'
 
     const box = event.target.getBoundingClientRect()
 
     const top = box.top + window.pageYOffset
     const left = box.left + window.pageXOffset
 
-    shiftX = event.pageX - left
-    shiftY = event.pageY - top - i * heightRow.value + scrollY
+
+
+    if(window.innerWidth > 539) {
+        shiftX = event.pageX - left
+        shiftY = event.pageY - top - i * heightRow.value + scrollY
+    } else {
+        shiftX = event.pageX
+        shiftY = event.pageY - i * heightRow.value
+    }
+
+
 
     skeletonIsActive.value = true
 
@@ -197,6 +207,7 @@ const dragRow = (event) => {
 const stopDragRow = (event) => {
     if(!dragRowRef.value) return
     dragRowRef.value.classList.remove('skeleton');
+    dragRowRef.value.style.height = 'auto'
     dragRowRef.value = null;
 
     x.value = null;
@@ -405,16 +416,28 @@ const save = () => {
 onMounted(() => {
     initStyle()
     initNamesCol()
+    setTimeout(() => {
+        if(window.innerWidth <= 539) {
+            heightRow.value = document.querySelectorAll('.table__content-item')[0].getBoundingClientRect().height
+        }
+    }, 0);
+
 })
 
 let mobileToPC = false
 
 addEventListener("resize", (event) => {
+    console.log('test')
+    heightRow.value = document.querySelectorAll('.table__content-item')[0].getBoundingClientRect().height
     if(window.innerWidth <= 539) {
         mobileToPC = true
     } else if(mobileToPC){
         initStyle()
         initNamesCol()
+    }
+
+    if(window.innerWidth > 539) {
+        heightRow.value = 45
     }
 });
 </script>
@@ -553,7 +576,9 @@ addEventListener("resize", (event) => {
                             {customHidden: (namesCols[row] && namesCols[row].show)}
                         ]"
                         :style="[
-                            {width: tableWidth + 'px'}
+                            {
+                                width: tableWidth + 'px',
+                            }
                         ]"
                         :key="i"
                         :row="row"
@@ -793,6 +818,10 @@ input {
     background-color: #fbfcfd;
     & .cell {
         display: none;
+        @media (max-width: 539px) {
+            display: block;
+            opacity: 0;
+        }
     }
 }
 
@@ -802,6 +831,9 @@ input {
     pointer-events: none;
     opacity: 0;
     z-index: -5;
+    @media (max-width: 539px) {
+        flex-direction: column;
+    }
     &.active {
         z-index: 10;
         pointer-events: all;
