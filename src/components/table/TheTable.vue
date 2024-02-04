@@ -160,18 +160,22 @@ const startDragRow = (event, row, i) => {
     const top = box.top + window.pageYOffset
     const left = box.left + window.pageXOffset
 
-
-
-    if(window.innerWidth > 539) {
+    if (window.innerWidth > 539 && event.type !== 'touchstart') {
         shiftX = event.pageX - left
         shiftY = event.pageY - top - i * heightRow.value + scrollY
-    } else {
-        shiftX = event.pageX
+    }
+    if (window.innerWidth <= 539 && event.type !== 'touchstart'){
+        shiftX = event.pageX 
         shiftY = event.pageY - i * heightRow.value
     }
-
-
-
+    if (window.innerWidth > 539 && event.type === 'touchstart') {
+        shiftX = event.changedTouches[0].screenX - left
+        shiftY = event.changedTouches[0].screenY - top - i * heightRow.value + scrollY
+    }
+    if (window.innerWidth <= 539 && event.type === 'touchstart') {
+        shiftX = event.changedTouches[0].screenX
+        shiftY = event.changedTouches[0].screenY - i * heightRow.value
+    }
     skeletonIsActive.value = true
 
     moveAt(event)
@@ -234,8 +238,14 @@ const swapArray = (arr, oldPlace, newPlace) => {
 };
 
 function moveAt(e) {
-    x.value = e.pageX - shiftX
-    y.value = e.pageY - shiftY
+    if(e.changedTouches) {
+        x.value = e.changedTouches[0].screenX - shiftX
+        y.value = e.changedTouches[0].screenY - shiftY
+    } else {
+        x.value = e.pageX - shiftX
+        y.value = e.pageY - shiftY
+    }
+
 }
 
 const lineHeight = (() => {
@@ -398,19 +408,15 @@ const choiceItem = item => {
 }
  
 const handleLineMouseOver = event => {
-    console.log(event.target)
     event.target.style.height = lineHeight() + 'px'
     event.target.style.opacity = 1
 }
 
 const handleLineMouseOut = event => {
-    console.log(event.target)
     event.target.style.height = '100%'
-    // event.target.style.opacity = 0
 }
 
 const save = () => {
-    console.log('test')
 }
 
 onMounted(() => {
@@ -427,7 +433,6 @@ onMounted(() => {
 let mobileToPC = false
 
 addEventListener("resize", (event) => {
-    console.log('test')
     heightRow.value = document.querySelectorAll('.table__content-item')[0].getBoundingClientRect().height
     if(window.innerWidth <= 539) {
         mobileToPC = true
@@ -439,6 +444,27 @@ addEventListener("resize", (event) => {
     if(window.innerWidth > 539) {
         heightRow.value = 45
     }
+});
+
+let prevScrollY = window.scrollY;
+
+addEventListener('scroll', (event) => {
+  // Текущее значение прокрутки
+  const currentScrollY = window.scrollY;
+
+  // Разница между предыдущим и текущим значением прокрутки
+  const scrollDelta = currentScrollY - prevScrollY;
+
+  // Обновление предыдущего значения прокрутки для следующего события
+  prevScrollY = currentScrollY;
+
+  // Теперь scrollDelta содержит информацию о том, насколько изменилась прокрутка
+  console.log('Изменение прокрутки:', scrollDelta);
+
+  // Далее, вы можете использовать scrollDelta по вашему усмотрению
+  styleDropDown.value.y += -scrollDelta;
+
+  console.log('scrollDelta', scrollDelta )
 });
 </script>
 
@@ -568,6 +594,7 @@ addEventListener("resize", (event) => {
                         @mousemove="dragRow($event)"
                         @mouseup="stopDragRow($event)"
                         @mouseout="stopDragRow($event)"
+                        @touchend="stopDragRow($event)"
                     />
                     <row-item
                         class="table__content-item row"
@@ -595,6 +622,7 @@ addEventListener("resize", (event) => {
                         @closeDropdownNameUnits="event => closeDropdownNameUnits(event)"
                         @toggleDropdownNameUnits="(event, row) => toggleDropdownNameUnits(event, row)"
                         @updateData="updateData++"
+                        @dragRow="dragRow($event)"
                     />
                     </div>
                     <total-info/>
