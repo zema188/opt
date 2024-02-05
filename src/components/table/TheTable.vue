@@ -896,8 +896,6 @@ input {
             transform: translate(-50%, -50%);
             z-index: 5;
             cursor: grab;
-            background: red;
-            opacity: 0.5;
         }
     }
 }
