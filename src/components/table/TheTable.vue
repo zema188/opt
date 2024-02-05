@@ -24,35 +24,45 @@ const data = ref([
         price: 1231,
         quantity: 12,
         name_product: 'Мраморный щебень',
-        total: 1231
+        weight: 25,
     },
     {
         name_units: 'Мраморный щебень фр. 2-5 мм, 25кг',
         price: 1231,
         quantity: 12,
         name_product: 'Мраморный щебень',
-        total: 1231
+        weight: 25,
     },
     {
         name_units: 'Мраморный щебень фр. 2-5 мм, 25кг',
         price: 1231,
         quantity: 12,
         name_product: 'Мраморный щебень',
-        total: 1231
+        weight: 25,
     },
 ])
 
 const goods = ref([
-    'Мраморный щебень фр. 2-5 мм, 25кг',
-    'Мраморный щебень фр. 2-5 мм, 25кг (белый)',
-    'Мраморный щебень фр. 2-5 мм, 25кг (вайт)',
-    'Мраморный щебень фр. 2-5 мм, 25кг, возврат',
-    'Мраморный щебень фр. 2-5 мм, 1т',
-    'Зеленый щебень фр. 2-5 мм, 25кг',
-    'Зеленый щебень фр. 2-5 мм, 25кг (белый)',
-    'Зеленый щебень фр. 2-5 мм, 25кг (вайт)',
-    'Зеленый щебень фр. 2-5 мм, 25кг, возврат',
-    'Зеленый щебень фр. 2-5 мм, 1т',
+    {
+        name: 'Мраморный щебень фр. 2-5 мм, 25кг',
+        weight: 25
+    },
+    {
+        name: 'Мраморный щебень фр. 2-5 мм, 25кг (белый)',
+        weight: 25
+    },
+    {
+        name: 'Мраморный щебень фр. 2-5 мм, 25кг (вайт)',
+        weight: 25
+    },
+    {
+        name: 'Мраморный щебень фр. 2-5 мм, 25кг, возврат',
+        weight: 25
+    },
+    {
+        name: 'Мраморный щебень фр. 2-5 мм, 1т',
+        weight: 1000
+    },
 ])
 
 const styleDropDown = ref({})
@@ -75,6 +85,7 @@ let heightRow = ref(45)
 const setItemRef = (el) => {
   headerItemsRefs.value.push(el);
 };
+
 let wasInitStyle = false
 const initStyle = () => {
     if(window.innerWidth > 539) {
@@ -88,7 +99,6 @@ const initStyle = () => {
 };
 
 const namesCols = ref({})
-
 const initNamesCol = () => {
     header.value.forEach(el => {
         let name = el[1]
@@ -200,7 +210,7 @@ const dragRow = (event) => {
             if(skeleton) {
                 skeleton.classList.remove('skeleton')
             }
-            const row = document.querySelectorAll('.table__content-item')[dragRowCurrentIndex.value]
+            const row = document.querySelectorAll('.table__list-item')[dragRowCurrentIndex.value]
             if(row) {
                 row.classList.add('skeleton')
             }
@@ -292,8 +302,6 @@ const startDragCol = (event, number, headerItem) => {
 };
 
 
-
-
 const dragCol = (event) => {
     if (!dragColName.value || activeDragObject.value) return
     const tableHeaderRect = tableHeader.value.getBoundingClientRect();
@@ -335,7 +343,6 @@ const dragCol = (event) => {
     }
 };
 
-
 const stopDragCol = (event) => {
     dragColName.value = null
     dragColCurrentIndex.value = null
@@ -351,16 +358,15 @@ const addNewRow = () => {
     data.value.push(
         {
             name_units: '',
-            price: '',
-            quantity: '',
+            price: null,
+            quantity: null,
             name_product: '',
-            total: ''
+            weight: null
         }
     )
 }
 
 let updateData = ref(0)
-
 const deleteRow = numberRow => {
     data.value.splice(numberRow, 1)
     updateData.value++
@@ -376,8 +382,8 @@ const tableWidth = computed(() => {
     }
     return null;
 })
-let activeRowForChoice = ref(null)
 
+let activeRowForChoice = ref(null)
 const openDropdownNameUnits = (event, row) => {
     const input =  event.target.closest('.cell').querySelector('input')
     styleDropDown.value.x = input.getBoundingClientRect().x
@@ -403,7 +409,8 @@ const closeDropdownNameUnits = event => {
 
 const choiceItem = item => {
     updateData.value++
-    activeRowForChoice.value.name_units = item
+    activeRowForChoice.value.name_units = item.name
+    activeRowForChoice.value.weight = item.weight
     closeDropdownNameUnits()
 }
  
@@ -416,24 +423,11 @@ const handleLineMouseOut = event => {
     event.target.style.height = '100%'
 }
 
-const save = () => {
-}
-
-onMounted(() => {
-    initStyle()
-    initNamesCol()
-    setTimeout(() => {
-        if(window.innerWidth <= 539) {
-            heightRow.value = document.querySelectorAll('.table__content-item')[0].getBoundingClientRect().height
-        }
-    }, 0);
-
-})
+const save = () => {}
 
 let mobileToPC = false
-
 addEventListener("resize", (event) => {
-    heightRow.value = document.querySelectorAll('.table__content-item')[0].getBoundingClientRect().height
+    heightRow.value = document.querySelectorAll('.table__list-item')[0].getBoundingClientRect().height
     if(window.innerWidth <= 539) {
         mobileToPC = true
     } else if(mobileToPC){
@@ -447,30 +441,31 @@ addEventListener("resize", (event) => {
 });
 
 let prevScrollY = window.scrollY;
-
 addEventListener('scroll', (event) => {
-  // Текущее значение прокрутки
   const currentScrollY = window.scrollY;
 
-  // Разница между предыдущим и текущим значением прокрутки
   const scrollDelta = currentScrollY - prevScrollY;
 
-  // Обновление предыдущего значения прокрутки для следующего события
   prevScrollY = currentScrollY;
 
-  // Теперь scrollDelta содержит информацию о том, насколько изменилась прокрутка
-  console.log('Изменение прокрутки:', scrollDelta);
-
-  // Далее, вы можете использовать scrollDelta по вашему усмотрению
   styleDropDown.value.y += -scrollDelta;
-
-  console.log('scrollDelta', scrollDelta )
 });
+
+onMounted(() => {
+    initStyle()
+    initNamesCol()
+    setTimeout(() => {
+        if(window.innerWidth <= 539) {
+            heightRow.value = document.querySelectorAll('.table__list-item')[0].getBoundingClientRect().height
+        }
+    }, 0);
+
+})
 </script>
 
 <template>
     <div class="container">
-        <div class="block-add block">
+        <div class="table__add block">
             <button class="btn btn_blue"
                 @click="addNewRow()"
             >
@@ -480,61 +475,56 @@ addEventListener('scroll', (event) => {
         </div>
     </div>
     <div class="container">
-        <div class="block-table block">
-        <div class="table__top">
-            <button class="save"
-                v-if="updateData"
-                @click="save()"
-            >
-                Сохранить изменения
-            </button>
-            <div class="for-dropdown">
-                <button
-                    @click="hiddenFormIsActive = !hiddenFormIsActive, hiddenFormBtnsIsActive = true, hiddenFormLabelIsActive = false"
+        <div class="table__content block">
+            <div class="table__top">
+                <button class="save"
+                    v-if="updateData"
+                    @click="save()"
                 >
-                    <icon-settings/>
+                    Сохранить изменения
                 </button>
-                <div class="dropwdown"
-                    v-if="hiddenFormIsActive"
-                >
-                    <div class="dropwdown__btns"
-                        v-if="hiddenFormBtnsIsActive"
+                <div class="for-dropdown">
+                    <button
+                        @click="hiddenFormIsActive = !hiddenFormIsActive, hiddenFormBtnsIsActive = true, hiddenFormLabelIsActive = false"
                     >
-                        <!-- <button class="dropwdown__btn">
-                            Порядок столбцов
-                            <icon-arrow/>
-                        </button> -->
-                        <button class="dropwdown__btn"
-                            @click="hiddenFormLabelIsActive = !hiddenFormLabelIsActive, hiddenFormBtnsIsActive = false"
-                        >
-                            Отображение столбцов
-                            <icon-arrow/>
-                        </button>
-                    </div>
-                    <div class="hidden-form"
-                        v-if="hiddenFormLabelIsActive"
+                        <icon-settings/>
+                    </button>
+                    <div class="dropwdown"
+                        v-if="hiddenFormIsActive"
                     >
-                        <p class="hidden-form__subtitle">
-                            <icon-arrow
-                                @click="hiddenFormBtnsIsActive = true, hiddenFormLabelIsActive = false"
-                            />
-                            Отображение столбцов
-                        </p>
-                        <label class="dropwdown__item"
-                            v-for="(value, key) in namesCols" :key="key"
+                        <div class="dropwdown__btns"
+                            v-if="hiddenFormBtnsIsActive"
                         >
-                            <input type="checkbox"
-                                v-model="value.show"
-                            />
-                            {{ value.name }}
-                        </label>
+                            <button class="dropwdown__btn"
+                                @click="hiddenFormLabelIsActive = !hiddenFormLabelIsActive, hiddenFormBtnsIsActive = false"
+                            >
+                                Отображение столбцов
+                                <icon-arrow/>
+                            </button>
+                        </div>
+                        <div class="hidden-form"
+                            v-if="hiddenFormLabelIsActive"
+                        >
+                            <p class="hidden-form__subtitle">
+                                <icon-arrow
+                                    @click="hiddenFormBtnsIsActive = true, hiddenFormLabelIsActive = false"
+                                />
+                                Отображение столбцов
+                            </p>
+                            <label class="dropwdown__item"
+                                v-for="(value, key) in namesCols" :key="key"
+                            >
+                                <input type="checkbox"
+                                    v-model="value.show"
+                                />
+                                {{ value.name }}
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-            <div class="table"
-            >
-                <div class="table__header"
+            <div class="table__info">
+                <div class="table__info-header"
                     ref="tableHeader"
                 >
                     <div class="fake-header"
@@ -574,7 +564,7 @@ addEventListener('scroll', (event) => {
                         ></div>
                     </div>
                 </div>
-                <div class="table__content"
+                <div class="table__list"
                     ref="tableContent"
                 >
                     <div class="table__content-list"
@@ -597,7 +587,7 @@ addEventListener('scroll', (event) => {
                         @touchend="stopDragRow($event)"
                     />
                     <row-item
-                        class="table__content-item row"
+                        class="table__list-item row"
                         v-for="(row, i) of data"
                         :class="[
                             {customHidden: (namesCols[row] && namesCols[row].show)}
@@ -625,8 +615,10 @@ addEventListener('scroll', (event) => {
                         @dragRow="dragRow($event)"
                     />
                     </div>
-                    <total-info/>
                 </div>
+                <total-info
+                    :data="data"
+                />
             </div>
         </div>
     </div>
@@ -640,11 +632,41 @@ addEventListener('scroll', (event) => {
 
 <style lang="scss">
 .table {
-    overflow: auto;
-    @media (max-width: 539px) {
-        overflow: visible;
+    &__add {
+        padding: 19px 23px;
+        margin-bottom: 25px;
+        & .btn_blue {
+            padding: 9px 15px 9px 7px;
+            & svg {
+                width: 15px;
+            }
+        }
     }
-    &__header {
+
+    &__list {
+        position: relative;
+
+    }
+
+    &__content {
+        @media (max-width: 539px) {
+            background: none;
+            box-shadow: none;
+            border: none;
+            border-radius: 10px;
+            padding-top: 0px;
+        }
+    }
+
+    &__info {
+        overflow: auto;
+        padding-bottom: 25px;
+        @media (max-width: 539px) {
+            overflow: visible;
+        }
+    }
+
+    &__info-header {
         display: flex;
         @media (max-width: 539px) {
             display: none;
@@ -661,15 +683,7 @@ addEventListener('scroll', (event) => {
         }
     }
 
-    &__content {
-        position: relative;
-        padding-bottom: 25px;
-        @media (max-width: 539px) {
-            padding-top: 0px;
-        }
-    }
-
-    &__content-item {
+    &__list-item {
         display: flex;
         @media (max-width: 539px) {
             flex-wrap: wrap;
@@ -927,11 +941,6 @@ input {
     position: relative;
 }
 
-.block-add {
-    & svg {
-        width: 15px;
-    }
-}
 
 .fake-header {
     position: fixed;

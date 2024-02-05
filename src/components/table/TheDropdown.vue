@@ -27,7 +27,7 @@ const props = defineProps({
             v-for="(el, index) of props.goods" :key="index"
             @click="$emit('choiceItem', el)"
         >
-            {{ el }}
+            {{ el.name }}
         </div>
     </div>
 </template>

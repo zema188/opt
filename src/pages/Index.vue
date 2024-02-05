@@ -2,6 +2,7 @@
 import IconSettings from '@/components/icons/IconSettings.vue'
 import TheTable from '@/components/table/TheTable.vue'
 import { ref } from 'vue'
+
 const routerLinks = ref([
     {name: 'Общее', nameMobile: 'Общее', link: '/general'},
     {name: 'Товары', nameMobile: 'Товар списания', link: '/'},
@@ -10,38 +11,36 @@ const routerLinks = ref([
 </script>
 
 <template>
-    <div class="wrapper">
-        <header class="header container">
-          <div class="header__top">
-            <div class="menu-mobile">
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="12" viewBox="0 0 15 12">
-                  <path d="M1 0h13a1 1 0 1 1 0 2H1a1 1 0 0 1 0-2zm0 5h13a1 1 0 0 1 0 2H1a1 1 0 1 1 0-2zm0 5h13a1 1 0 0 1 0 2H1a1 1 0 1 1 0-2z" fill="#A6B7D4" fill-rule="evenodd"/>
-              </svg>
-            </div>
-            <div class="header__title">
-              Проведение ТО и мелкий ремонт
-            </div>
-          </div>
-          <div class="header__action">
-            <nav class="nav">
-              <router-link :to="route.link" class="nav__item"
-                v-for="route of routerLinks" :key="route.name"
-              >
-                <span>
-                    {{ route.name }}
-                </span>
-                <span>
-                    {{ route.nameMobile }}
-                </span>
-              </router-link>
-            </nav>
-            <button>
-              <icon-settings/>
-            </button>
-          </div>
-        </header>
-        <the-table/>
+  <header class="header container">
+    <div class="header__top">
+      <div class="menu-mobile">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="12" viewBox="0 0 15 12">
+            <path d="M1 0h13a1 1 0 1 1 0 2H1a1 1 0 0 1 0-2zm0 5h13a1 1 0 0 1 0 2H1a1 1 0 1 1 0-2zm0 5h13a1 1 0 0 1 0 2H1a1 1 0 1 1 0-2z" fill="#A6B7D4" fill-rule="evenodd"/>
+        </svg>
+      </div>
+      <div class="header__title">
+        Проведение ТО и мелкий ремонт
+      </div>
     </div>
+    <div class="header__action">
+      <nav class="nav">
+        <router-link :to="route.link" class="nav__item"
+          v-for="route of routerLinks" :key="route.name"
+        >
+          <span>
+              {{ route.name }}
+          </span>
+          <span>
+              {{ route.nameMobile }}
+          </span>
+        </router-link>
+      </nav>
+      <button>
+        <icon-settings/>
+      </button>
+    </div>
+  </header>
+  <the-table/>
 </template>
 
 <style lang="scss">
@@ -108,13 +107,6 @@ const routerLinks = ref([
 }
 
 
-.block-add {
-  padding: 19px 23px;
-  margin-bottom: 25px;
-  & .btn_blue {
-    padding: 9px 15px 9px 7px;
-  }
-}
 
 
 .table {
@@ -139,16 +131,8 @@ const routerLinks = ref([
     }
   }
 }
-.block {
-}
-.block-table {
-  @media (max-width: 539px) {
-    background: none;
-    box-shadow: none;
-    border: none;
-    border-radius: 10px;
-  }
-}
+
+
 .menu-mobile {
   display: none;
   padding-top: 11px;
@@ -156,7 +140,6 @@ const routerLinks = ref([
     display: block;
   }
 }
-
 
 .header__top {
   display: flex;

@@ -8,7 +8,7 @@ body {
 }
 
 .wrapper {
-    padding-top: 10px;
+    padding-top: 20px;
 }
 
 .container {
@@ -54,7 +54,7 @@ body {
         padding-right: 10px;
     }
     .wrapper {
-        padding-top: 6px;
+        padding-top: 12px;
     }
     body {
         background: #fff;

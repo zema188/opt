@@ -2,7 +2,7 @@
 <script setup>
 import IconMenu from '@/components/icons/IconMenu.vue'
 import IconTriangle from '@/components/icons/IconTriangle.vue'
-import { ref, watchEffect } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 const props = defineProps({
     row: {
         type: Object,
@@ -52,6 +52,9 @@ watchEffect(() => {
     }
 });
 
+let total = computed(() => {
+    return props.row.price * props.row.quantity
+})
 </script>
 
 <template>
@@ -138,11 +141,13 @@ watchEffect(() => {
                 </div>
             </div>
             <input
+                type="number"
                 v-if="item[0] === 'price'"
                 v-model="props.row.price"
                 @input="$emit('updateData')"
             />
             <input
+                type="number"
                 v-if="item[0] === 'quantity'"
                 v-model="props.row.quantity"
                 @input="$emit('updateData')"
@@ -159,8 +164,10 @@ watchEffect(() => {
                 </div>
             </div>
             <input
+                type="number"
+                readonly
                 v-if="item[0] === 'total'"
-                v-model="props.row.total"
+                :value="total"
                 @input="$emit('updateData')"
             />
         </div>
@@ -258,6 +265,12 @@ watchEffect(() => {
             height: 5px;
             transform: rotate(90deg);
         }
+    }
+}
+
+input {
+    &:read-only {
+        cursor: default;
     }
 }
 </style>

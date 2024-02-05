@@ -1,7 +1,44 @@
 
 
 <script setup>
+import { computed } from "vue"
 
+const props = defineProps({
+    data: {
+        type: Object,
+        required: true
+    }
+})
+
+const sum = computed(() => {
+    let sum = 0
+
+    props.data.forEach(el => {
+        if(el.price && el.quantity) sum += el.price * el.quantity
+    });
+
+    return sum
+})
+
+const totalWeight = computed(() => {
+    let weight = 0
+
+    props.data.forEach(el => {
+        if(el.weight) weight += el.weight
+    });
+
+    return weight
+})
+
+const quantity = computed(() => {
+    let quantity = 0
+
+    props.data.forEach(el => {
+        if(el.quantity) quantity += el.quantity
+    });
+
+    return quantity
+})
 </script>
 
 <template>
@@ -12,7 +49,7 @@
                     Сумма:
                 </span>
                 <p>
-                    152 212 руб
+                    {{ sum }} руб
                 </p>
             </div>
             <div class="total__item">
@@ -20,7 +57,7 @@
                     Кол-во:
                 </span>
                 <p>
-                    24 шт
+                    {{ quantity }} шт
                 </p>
             </div>
             <div class="total__item">
@@ -28,7 +65,7 @@
                     Общий вес:
                 </span>
                 <p>
-                    2 322 кг
+                    {{ totalWeight }} кг
                 </p>
             </div>
         </div>
@@ -37,7 +74,7 @@
                 Общая сумма:
             </span>
             <p>
-                152 212 руб
+                {{ sum }} руб
             </p>
         </div>
     </div>
