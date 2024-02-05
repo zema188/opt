@@ -165,5 +165,4 @@ const numberWithCommas = (number) => {
         }
     }
 }
-
 </style>

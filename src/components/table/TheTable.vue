@@ -66,15 +66,11 @@ const goods = ref([
 ])
 
 const styleDropDown = ref({})
-
+const activeDragObject = ref(null)
 let dropdownIsActive = ref(false)
-
 let hiddenFormIsActive = ref(false)
 let hiddenFormBtnsIsActive = ref(false)
 let hiddenFormLabelIsActive = ref(false)
-
-
-const activeDragObject = ref(null)
 let headerItemsRefs = ref([])
 let reactiveStyleForCells = reactive({});
 let tableHeader = ref(null)
@@ -297,7 +293,7 @@ const startDragCol = (event, number, headerItem) => {
 
     const box = event.target.getBoundingClientRect()
 
-    const left = box.left + window.pageXOffset  // Adjust for horizontal scroll
+    const left = box.left + window.pageXOffset
     shiftX = event.pageX - left
 };
 
@@ -894,12 +890,14 @@ input {
             content: "";
             width: 100%;
             height: 100%;
-            position: fixed;
+            position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 5;
             cursor: grab;
+            background: red;
+            opacity: 0.5;
         }
     }
 }
