@@ -1,15 +1,34 @@
 <script setup>
+import { onMounted, onUnmounted } from "vue";
 const props = defineProps({
     goods: {
         type: Array,
     },
     isActive: {
-        type: Array,
+        type: Boolean,
     },
     styles: {
         type: Object
     }
 })
+
+const emit = defineEmits('updateIsActive')
+
+const handleClick = (event) => {
+    const target = event.target
+    if(target.classList.contains('dropdown') || (target.closest('.dropdown') && target.closest('.dropdown').classList.contains('dropdown'))) {
+    } else {
+        if(!target.closest('.input-w') && props.isActive) emit('updateIsActive', !props.isActive)
+    }
+}
+
+onMounted(() => {
+    window.addEventListener('click', handleClick);
+})
+
+onUnmounted(() => {
+    window.removeEventListener('click', handleClick);
+});
 </script>
 
 <template>

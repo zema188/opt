@@ -8,6 +8,7 @@ const routerLinks = ref([
     {name: 'Товары', nameMobile: 'Товар списания', link: '/'},
     {name: 'Доп. расходы', nameMobile: 'Доп. расходы', link: '/additionally'},
 ])
+
 </script>
 
 <template>

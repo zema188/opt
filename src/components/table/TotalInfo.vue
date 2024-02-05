@@ -17,7 +17,7 @@ const sum = computed(() => {
         if(el.price && el.quantity) sum += el.price * el.quantity
     });
 
-    return sum
+    return numberWithCommas(sum)
 })
 
 const totalWeight = computed(() => {
@@ -27,7 +27,7 @@ const totalWeight = computed(() => {
         if(el.weight) weight += el.weight
     });
 
-    return weight
+    return numberWithCommas(weight)
 })
 
 const quantity = computed(() => {
@@ -37,8 +37,12 @@ const quantity = computed(() => {
         if(el.quantity) quantity += el.quantity
     });
 
-    return quantity
+    return numberWithCommas(quantity)
 })
+
+const numberWithCommas = (number) => {
+    return number.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, " ");
+}
 </script>
 
 <template>

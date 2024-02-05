@@ -2,7 +2,7 @@
 <script setup>
 import IconMenu from '@/components/icons/IconMenu.vue'
 import IconTriangle from '@/components/icons/IconTriangle.vue'
-import { computed, ref, watchEffect } from 'vue'
+import { onMounted, onUnmounted, computed, ref, watchEffect } from 'vue'
 const props = defineProps({
     row: {
         type: Object,
@@ -46,6 +46,14 @@ const toggleDropdownNameUnits = (event) => {
     emit('toggleDropdownNameUnits', event, props.row)
 }
 
+const handleOutSideClickDelete = (event) => {
+    const target = event.target
+    if(target.classList.contains('points__dropdown') ) {
+    } else {
+        if(!target.closest('.points-w') && pointsFormIsActive.value) pointsFormIsActive.value = false
+    }
+}
+
 watchEffect(() => {
     if (props.updateData) {
         pointsFormIsActive.value = false
@@ -55,6 +63,14 @@ watchEffect(() => {
 let total = computed(() => {
     return props.row.price * props.row.quantity
 })
+
+onMounted(() => {
+    window.addEventListener('click', handleOutSideClickDelete);
+})
+
+onUnmounted(() => {
+    window.removeEventListener('click', handleOutSideClickDelete);
+});
 </script>
 
 <template>

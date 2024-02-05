@@ -1,6 +1,6 @@
 
 <script setup>
-import { onMounted, ref, reactive, computed } from "vue";
+import { onMounted, onUnmounted, ref, reactive, computed } from "vue";
 import RowItem from "./RowItem.vue";
 import IconSettings from '@/components/icons/IconSettings.vue'
 import IconPlus from '@/components/icons/IconPlus.vue'
@@ -34,11 +34,11 @@ const data = ref([
         weight: 25,
     },
     {
-        name_units: 'Мраморный щебень фр. 2-5 мм, 25кг',
-        price: 1231,
-        quantity: 12,
+        name_units: 'Мраморный щебень фр. 2-5 мм, 1т',
+        price: 1000,
+        quantity: 15,
         name_product: 'Мраморный щебень',
-        weight: 25,
+        weight: 1000,
     },
 ])
 
@@ -426,7 +426,7 @@ const handleLineMouseOut = event => {
 const save = () => {}
 
 let mobileToPC = false
-addEventListener("resize", (event) => {
+const handleResize = () => {
     heightRow.value = document.querySelectorAll('.table__list-item')[0].getBoundingClientRect().height
     if(window.innerWidth <= 539) {
         mobileToPC = true
@@ -438,18 +438,18 @@ addEventListener("resize", (event) => {
     if(window.innerWidth > 539) {
         heightRow.value = 45
     }
-});
+}
 
 let prevScrollY = window.scrollY;
-addEventListener('scroll', (event) => {
-  const currentScrollY = window.scrollY;
+const handleScroll = () => {
+    const currentScrollY = window.scrollY;
 
-  const scrollDelta = currentScrollY - prevScrollY;
+    const scrollDelta = currentScrollY - prevScrollY;
 
-  prevScrollY = currentScrollY;
+    prevScrollY = currentScrollY;
 
-  styleDropDown.value.y += -scrollDelta;
-});
+    styleDropDown.value.y += -scrollDelta;
+}
 
 onMounted(() => {
     initStyle()
@@ -459,8 +459,15 @@ onMounted(() => {
             heightRow.value = document.querySelectorAll('.table__list-item')[0].getBoundingClientRect().height
         }
     }, 0);
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('scroll', handleScroll);
 
 })
+
+onUnmounted(() => {
+    window.removeEventListener('resize', handleResize);
+    window.removeEventListener('scroll', handleScroll);
+});
 </script>
 
 <template>
@@ -627,6 +634,7 @@ onMounted(() => {
         :isActive="dropdownIsActive"
         :styles="styleDropDown"
         @choiceItem="item => choiceItem(item)"
+        @updateIsActive="value => dropdownIsActive = value"
     />
 </template>
 
@@ -659,8 +667,8 @@ onMounted(() => {
     }
 
     &__info {
-        overflow: auto;
         padding-bottom: 25px;
+        overflow: auto;
         @media (max-width: 539px) {
             overflow: visible;
         }
@@ -827,7 +835,7 @@ input {
     width: 168px;
 }
 .total {
-    width: 144px;
+    width: 143px;
 }
 
 .line {
