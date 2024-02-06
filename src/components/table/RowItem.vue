@@ -215,7 +215,7 @@ onUnmounted(() => {
 .points__dropdown {
     background: #fff;
     position: absolute;
-    padding: 7px 19.4px 7px 5px;
+    padding: 7px 5px 7px 5px;
     border-radius: 5px;
     box-shadow: 0 0 3px 0 #000, inset 0 1px 2px 0 rgba(255, 255, 255, 0.5);
     background-color: #fff;
@@ -229,6 +229,10 @@ onUnmounted(() => {
     letter-spacing: normal;
     color: #ae0a0a;
     z-index: 1;
+    transition: .2s;
+    &:hover {
+        background: #eef3f8;;
+    }
     @media (max-width: 539px) {
         left: 14px;
         top: calc(100% - 5px);

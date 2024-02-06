@@ -447,6 +447,15 @@ const handleScroll = () => {
     styleDropDown.value.y += -scrollDelta;
 }
 
+const handleClick = () => {
+    const target = event.target
+    if(hiddenFormIsActive.value) {
+        hiddenFormIsActive.value = false
+        hiddenFormBtnsIsActive.value = false
+        hiddenFormLabelIsActive.value = false
+    }
+}
+
 onMounted(() => {
     initStyle()
     initNamesCol()
@@ -457,12 +466,16 @@ onMounted(() => {
     }, 0);
     window.addEventListener('resize', handleResize);
     window.addEventListener('scroll', handleScroll);
+    window.addEventListener('click', handleClick);
+
 
 })
 
 onUnmounted(() => {
     window.removeEventListener('resize', handleResize);
     window.removeEventListener('scroll', handleScroll);
+    window.removeEventListener('click', handleClick);
+
 });
 </script>
 
@@ -488,18 +501,18 @@ onUnmounted(() => {
                 </button>
                 <div class="for-dropdown">
                     <button
-                        @click="hiddenFormIsActive = !hiddenFormIsActive, hiddenFormBtnsIsActive = true, hiddenFormLabelIsActive = false"
+                        @click.stop="hiddenFormIsActive = !hiddenFormIsActive, hiddenFormBtnsIsActive = true, hiddenFormLabelIsActive = false"
                     >
                         <icon-settings/>
                     </button>
-                    <div class="dropwdown"
+                    <div class="dropdown"
                         v-if="hiddenFormIsActive"
                     >
-                        <div class="dropwdown__btns"
+                        <div class="dropdown__btns"
                             v-if="hiddenFormBtnsIsActive"
                         >
-                            <button class="dropwdown__btn"
-                                @click="hiddenFormLabelIsActive = !hiddenFormLabelIsActive, hiddenFormBtnsIsActive = false"
+                            <button class="dropdown__btn"
+                                @click.stop="hiddenFormLabelIsActive = !hiddenFormLabelIsActive, hiddenFormBtnsIsActive = false"
                             >
                                 Отображение столбцов
                                 <icon-arrow/>
@@ -507,14 +520,15 @@ onUnmounted(() => {
                         </div>
                         <div class="hidden-form"
                             v-if="hiddenFormLabelIsActive"
+                            @click.stop=""
                         >
-                            <p class="hidden-form__subtitle">
-                                <icon-arrow
-                                    @click="hiddenFormBtnsIsActive = true, hiddenFormLabelIsActive = false"
-                                />
+                            <buttom class="hidden-form__subtitle"
+                                @click="hiddenFormBtnsIsActive = true, hiddenFormLabelIsActive = false"
+                            >
+                                <icon-arrow/>
                                 Отображение столбцов
-                            </p>
-                            <label class="dropwdown__item"
+                            </buttom>
+                            <label class="dropdown__item"
                                 v-for="(value, key) in namesCols" :key="key"
                             >
                                 <input type="checkbox"
@@ -900,26 +914,26 @@ input {
     }
 }
 
-.dropwdown {
+.dropdown {
     display: flex;
     flex-direction: column;
     gap: 5px;
     position: absolute;
     background: #fff;
     border-radius: 10px;
-    z-index: 5;
+    z-index: 7;
     right: 0;
     top: 20px;
-    padding: 10px;
     border: 1px solid #969669;
 }
 
-.dropwdown__item {
+.dropdown__item {
     display: flex;
     align-items: center;
     gap: 10px;
     justify-content: space-between;
     white-space: nowrap;
+    padding: 0px 8px;
     & input {
         width: auto;
         height: 100%;
@@ -970,12 +984,25 @@ input {
         display: none;
     }
 }
-.dropwdown__btn {
+.dropdown__btn {
     white-space: nowrap;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
     width: 100%;
+    padding: 6px 10px;
+    font-size: 14px;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #161616;
+    transition: .2s;
+    border-radius: 10px;
+    &:hover {
+        background: #eef3f8;
+    }
     &:not(:last-child) {
         margin-bottom: 10px
     }
@@ -990,6 +1017,22 @@ input {
     gap: 10px;
     width: 100%;
     white-space: nowrap;
+    padding: 6px 9px;
+    font-size: 14px;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #161616;
+    transition: .2s;
+    justify-content: space-between;
+    display: flex;
+    border-radius: 10px 10px 0px 0px;
+    cursor: pointer;
+    &:hover {
+        background: #eef3f8;
+    }
     & svg {
         width: 11px;
         cursor: pointer;
