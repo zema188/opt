@@ -146,6 +146,7 @@ onUnmounted(() => {
                 v-if="item[0] === 'name_units'"
             >
                 <input
+                    readonly
                     v-model="props.row.name_units"
                     @focus="openDropdownNameUnits($event)"
                     @input="$emit('updateData')"
